@@ -8,6 +8,8 @@ import java.util.zip.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import content.FileInfo;
+
 /**
  * 
  */
@@ -33,9 +35,9 @@ public class ComicScanner extends JApplet implements ActionListener {
 
 	DefaultListModel<String> listModel;
 
-	String filename;
-	char filetype = 'x';
+	String pathname, filename;
 	ArrayList<String> compressedFiles;
+	ArrayList<FileInfo> fileData;
 
 	// Called when this applet is loaded into the browser.
 	public void init() {
@@ -113,6 +115,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 	public ComicScanner() throws HeadlessException {
 		// TODO Auto-generated constructor stub
 		compressedFiles = new ArrayList<String>();
+		fileData = new ArrayList<FileInfo>();
 	}
 
 	/**
@@ -126,7 +129,8 @@ public class ComicScanner extends JApplet implements ActionListener {
 		int returnVal = chooser.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			try {
-				filename = chooser.getSelectedFile().getCanonicalPath();
+				pathname = chooser.getSelectedFile().getCanonicalPath();
+				filename = chooser.getSelectedFile().getName();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -142,14 +146,16 @@ public class ComicScanner extends JApplet implements ActionListener {
 			RetrieveFile();
 		} else if (e.getSource() == buttonCheck) {
 			compressedFiles.clear();
-			filetype = ArchiveType(filename);
-			switch (filetype) {
+			FileInfo archInfo = ArchiveType(pathname);
+			archInfo.name = filename;
+			fileData.add(archInfo);
+			switch (archInfo.type) {
 			case 'z':
 				ZipFile zipFile = null;
 				Enumeration<?> entries;
 
 				try {
-					zipFile = new ZipFile(filename);
+					zipFile = new ZipFile(pathname);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -165,11 +171,16 @@ public class ComicScanner extends JApplet implements ActionListener {
 						try {
 							byte[] buffer = new byte[(int) fileSize];
 							int len;
-							char type;
+							FileInfo info;
 							InputStream in;
 							in = zipFile.getInputStream(entry);
 							len = in.read(buffer);
-							type = ImageType(buffer);
+							info = ImageType(buffer);
+							info.name = entry.getName();
+							info.createdOn = entry.getTime();
+							info.size = len;
+							info.CalculateDigest(buffer);
+							fileData.add(info);
 							in.close();
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
@@ -197,69 +208,74 @@ public class ComicScanner extends JApplet implements ActionListener {
 	 * p => PNG
 	 * t => TIFF
 	 */
-	private char ImageType(byte[] image) {
+	private FileInfo ImageType(byte[] image) {
+		FileInfo fi = new FileInfo();
 		if (image.length > 5 && image[0] == (byte) 0x47 && image[1] == (byte) 0x49
 				&& image[2] == (byte) 0x46 && image[3] == (byte) 0x38
 				&& (image[4] == (byte) 0x37 || image[4] == (byte) 0x39)
 				&& image[5] == (byte) 0x61) {
-			return 'g';
-			return 't';
-			return 't';
-			return 'j';
-			return 'p';
+			fi.type = 'g';
 		} else if (image.length > 3 && image[0] == (byte) 0x49
 				&& image[1] == (byte) 0x49 && image[2] == (byte) 0x2A
 				&& image[3] == (byte) 0x00) {
+			fi.type = 't';
 		} else if (image.length > 3 && image[0] == (byte) 0x4D
 				&& image[1] == (byte) 0x4D && image[2] == (byte) 0x00
 				&& image[3] == (byte) 0x2A) {
+			fi.type = 't';
 		} else if (image.length > 3 && image[0] == (byte) 0xFF
 				&& image[1] == (byte) 0xD8 && image[2] == (byte) 0xFF
 				&& image[3] == (byte) 0xE0) {
+			fi.type = 'j';
 		} else if (image.length > 7 && image[0] == (byte) 0x89
 				&& image[1] == (byte) 0x50 && image[2] == (byte) 0x4E
 				&& image[3] == (byte) 0x47 && image[4] == (byte) 0x0D
 				&& image[5] == (byte) 0x0A && image[6] == (byte) 0x1A
 				&& image[7] == (byte) 0x0A) {
+			fi.type = 'p';
 		}
-		return 'x';
+		return fi;
 	}
 
 	/**
 	 * Returns the sort of archive.
+	 *  n => No file
 	 *  r => RAR file
 	 *  t => TAR file
 	 *  z => ZIP file
 	 *  x => Unknown
 	 */
-	private char ArchiveType(String filename) {
-		byte[] buffer = new byte[270];
+	private FileInfo ArchiveType(String filename) {
+		FileInfo fi = new FileInfo();
+		File infile = new File(filename);
+		byte[] buffer = new byte[(int)infile.length()];
 		try {
 			InputStream is = new FileInputStream(filename);
 			int count = is.read(buffer);
 			is.close();
 			if (count != buffer.length) {
-				return 'x';
+				fi.type = 'n';
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return 'x';
+			fi.type = 'n';
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return 'x';
+			fi.type = 'n';
+		}
+		if (fi.type == 'n') {
+			return fi;
 		}
 
 		if ((char) buffer[0] == 'P' && (char) buffer[1] == 'K'
 				&& buffer[2] == (byte) 0x03 && buffer[3] == (byte) 0x04) {
-			return 'z';
+			fi.type = 'z';
 		} else if ((char) buffer[0] == 'R' && (char) buffer[1] == 'a'
 				&& (char) buffer[2] == 'r' && (char) buffer[3] == '!'
-			return 'r';
 				&& buffer[4] == (byte)0x1a && buffer[5] == (byte)0x07 &&
 				((buffer[6] == (byte)0x00
 				|| (buffer[6] == (byte)0x01 && buffer[7] == (byte)0x00)))) {
+			fi.type = 'r';
 		} else if (buffer[257] == (byte) 0x75
 				&& buffer[258] == (byte) 0x73
 				&& buffer[259] == (byte) 0x74
@@ -267,9 +283,15 @@ public class ComicScanner extends JApplet implements ActionListener {
 				&& buffer[261] == (byte) 0x72
 				&& ((buffer[262] == (byte) 0x00 && buffer[263] == (byte) 0x30 && buffer[264] == (byte) 0x30) || (buffer[262] == (byte) 0x20
 						&& buffer[263] == (byte) 0x20 && buffer[264] == (byte) 0x00))) {
-			return 't';
+			fi.type = 't';
+		} else {
+			fi.type = 'x';
 		}
+		
+		fi.size = buffer.length;
+		fi.createdOn = infile.lastModified();
+		fi.CalculateDigest(buffer);
 
-		return 'x';
+		return fi;
 	}
 }
