@@ -1,6 +1,9 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.zip.*;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -32,6 +35,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 
 	String filename;
 	char filetype = 'x';
+	ArrayList<String> compressedFiles;
 
 	// Called when this applet is loaded into the browser.
 	public void init() {
@@ -108,6 +112,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 	 */
 	public ComicScanner() throws HeadlessException {
 		// TODO Auto-generated constructor stub
+		compressedFiles = new ArrayList<String>();
 	}
 
 	/**
@@ -136,17 +141,92 @@ public class ComicScanner extends JApplet implements ActionListener {
 		if (e.getSource() == buttonChoose) {
 			RetrieveFile();
 		} else if (e.getSource() == buttonCheck) {
+			compressedFiles.clear();
 			filetype = ArchiveType(filename);
+			switch (filetype) {
+			case 'z':
+				ZipFile zipFile = null;
+				Enumeration<?> entries;
+
+				try {
+					zipFile = new ZipFile(filename);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				if (zipFile != null) {
+					entries = zipFile.entries();
+					while (entries.hasMoreElements()) {
+						ZipEntry entry = (ZipEntry) entries.nextElement();
+						String fname = entry.getName();
+						long fileSize = entry.getSize();
+						compressedFiles.add(fname);
+
+						try {
+							byte[] buffer = new byte[(int) fileSize];
+							int len;
+							char type;
+							InputStream in;
+							in = zipFile.getInputStream(entry);
+							len = in.read(buffer);
+							type = ImageType(buffer);
+							in.close();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+
+					}
+				}
+
+				try {
+					zipFile.close();
+				} catch (IOException e1) {
+					// Don't bother
+				}
+
+				break;
+			}
 		}
 
 	}
-	
+
+	/**
+	 * g => GIF
+	 * j => JPEG
+	 * p => PNG
+	 * t => TIFF
+	 */
+	private char ImageType(byte[] image) {
+		if (image[0] == (byte) 0x47 && image[1] == (byte) 0x49
+				&& image[2] == (byte) 0x46 && image[3] == (byte) 0x38
+				&& (image[4] == (byte) 0x37 || image[4] == (byte) 0x39)
+				&& image[5] == (byte) 0x61) {
+			return 'g';
+		} else if (image[0] == (byte) 0x49 && image[1] == (byte) 0x49
+				&& image[2] == (byte) 0x2A && image[3] == (byte) 0x00) {
+			return 't';
+		} else if (image[0] == (byte) 0x4D && image[1] == (byte) 0x4D
+				&& image[2] == (byte) 0x00 && image[3] == (byte) 0x2A) {
+			return 't';
+		} else if (image[0] == (byte) 0xFF && image[1] == (byte) 0xD8
+				&& image[2] == (byte) 0xFF && image[3] == (byte) 0xE0) {
+			return 'j';
+		} else if (image[0] == (byte) 0x89 && image[1] == (byte) 0x50
+				&& image[2] == (byte) 0x4E && image[3] == (byte) 0x47
+				&& image[4] == (byte) 0x0D && image[5] == (byte) 0x0A
+				&& image[6] == (byte) 0x1A && image[7] == (byte) 0x0A) {
+			return 'p';
+		}
+		return 'x';
+	}
+
 	/**
 	 * Returns the sort of archive.
-	 * r => RAR file
-	 * t => TAR file
-	 * z => ZIP file
-	 * x => Unknown
+	 *  r => RAR file
+	 *  t => TAR file
+	 *  z => ZIP file
+	 *  x => Unknown
 	 */
 	private char ArchiveType(String filename) {
 		byte[] buffer = new byte[270];
@@ -167,23 +247,23 @@ public class ComicScanner extends JApplet implements ActionListener {
 			return 'x';
 		}
 
-		if ((char)buffer[0] == 'P' && (char)buffer[1] == 'K') {
-			System.out.println("Zip file!");
+		if ((char) buffer[0] == 'P' && (char) buffer[1] == 'K'
+				&& buffer[2] == (byte) 0x03 && buffer[3] == (byte) 0x04) {
 			return 'z';
-		} else if ((char)buffer[0] == 'R' && (char)buffer[1] == 'a'
-				&& (char)buffer[2] == 'r' && (char)buffer[3] == '!'
+		} else if ((char) buffer[0] == 'R' && (char) buffer[1] == 'a'
+				&& (char) buffer[2] == 'r' && (char) buffer[3] == '!'
 				&& buffer[4] == 0x1a) {
-			System.out.println("Rar file!");
 			return 'r';
-		} else if (buffer[257] == 0x75 && buffer[258] == 0x73 && buffer[259] == 0x74
-				&& buffer[260] == 0x61 && buffer[261] == 0x72 && (
-						(buffer[262] == 0x00 && buffer[263] == 0x30 && buffer[264] == 0x30) ||
-						(buffer[262] == 0x20 && buffer[263] == 0x20 && buffer[264] == 0x00)
-						)) {
-			System.out.println("Tar file!");
+		} else if (buffer[257] == (byte) 0x75
+				&& buffer[258] == (byte) 0x73
+				&& buffer[259] == (byte) 0x74
+				&& buffer[260] == (byte) 0x61
+				&& buffer[261] == (byte) 0x72
+				&& ((buffer[262] == (byte) 0x00 && buffer[263] == (byte) 0x30 && buffer[264] == (byte) 0x30) || (buffer[262] == (byte) 0x20
+						&& buffer[263] == (byte) 0x20 && buffer[264] == (byte) 0x00))) {
 			return 't';
 		}
-		
+
 		return 'x';
 	}
 }
