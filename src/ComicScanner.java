@@ -198,25 +198,29 @@ public class ComicScanner extends JApplet implements ActionListener {
 	 * t => TIFF
 	 */
 	private char ImageType(byte[] image) {
-		if (image[0] == (byte) 0x47 && image[1] == (byte) 0x49
+		if (image.length > 5 && image[0] == (byte) 0x47 && image[1] == (byte) 0x49
 				&& image[2] == (byte) 0x46 && image[3] == (byte) 0x38
 				&& (image[4] == (byte) 0x37 || image[4] == (byte) 0x39)
 				&& image[5] == (byte) 0x61) {
 			return 'g';
-		} else if (image[0] == (byte) 0x49 && image[1] == (byte) 0x49
-				&& image[2] == (byte) 0x2A && image[3] == (byte) 0x00) {
 			return 't';
-		} else if (image[0] == (byte) 0x4D && image[1] == (byte) 0x4D
-				&& image[2] == (byte) 0x00 && image[3] == (byte) 0x2A) {
 			return 't';
-		} else if (image[0] == (byte) 0xFF && image[1] == (byte) 0xD8
-				&& image[2] == (byte) 0xFF && image[3] == (byte) 0xE0) {
 			return 'j';
-		} else if (image[0] == (byte) 0x89 && image[1] == (byte) 0x50
-				&& image[2] == (byte) 0x4E && image[3] == (byte) 0x47
-				&& image[4] == (byte) 0x0D && image[5] == (byte) 0x0A
-				&& image[6] == (byte) 0x1A && image[7] == (byte) 0x0A) {
 			return 'p';
+		} else if (image.length > 3 && image[0] == (byte) 0x49
+				&& image[1] == (byte) 0x49 && image[2] == (byte) 0x2A
+				&& image[3] == (byte) 0x00) {
+		} else if (image.length > 3 && image[0] == (byte) 0x4D
+				&& image[1] == (byte) 0x4D && image[2] == (byte) 0x00
+				&& image[3] == (byte) 0x2A) {
+		} else if (image.length > 3 && image[0] == (byte) 0xFF
+				&& image[1] == (byte) 0xD8 && image[2] == (byte) 0xFF
+				&& image[3] == (byte) 0xE0) {
+		} else if (image.length > 7 && image[0] == (byte) 0x89
+				&& image[1] == (byte) 0x50 && image[2] == (byte) 0x4E
+				&& image[3] == (byte) 0x47 && image[4] == (byte) 0x0D
+				&& image[5] == (byte) 0x0A && image[6] == (byte) 0x1A
+				&& image[7] == (byte) 0x0A) {
 		}
 		return 'x';
 	}
@@ -252,8 +256,10 @@ public class ComicScanner extends JApplet implements ActionListener {
 			return 'z';
 		} else if ((char) buffer[0] == 'R' && (char) buffer[1] == 'a'
 				&& (char) buffer[2] == 'r' && (char) buffer[3] == '!'
-				&& buffer[4] == 0x1a) {
 			return 'r';
+				&& buffer[4] == (byte)0x1a && buffer[5] == (byte)0x07 &&
+				((buffer[6] == (byte)0x00
+				|| (buffer[6] == (byte)0x01 && buffer[7] == (byte)0x00)))) {
 		} else if (buffer[257] == (byte) 0x75
 				&& buffer[258] == (byte) 0x73
 				&& buffer[259] == (byte) 0x74
