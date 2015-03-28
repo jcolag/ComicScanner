@@ -7,6 +7,10 @@ import java.util.zip.*;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 
 import content.FileInfo;
 
@@ -153,6 +157,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 		if (e.getSource() == buttonChoose) {
 			RetrieveFile();
 		} else if (e.getSource() == buttonCheck) {
+			textReport.setText("");
 			compressedFiles.clear();
 			FileInfo archInfo = ArchiveType(pathname);
 			archInfo.name = filename;
@@ -205,6 +210,31 @@ public class ComicScanner extends JApplet implements ActionListener {
 				}
 
 				break;
+			}
+		} else if (e.getSource() == buttonSend) {
+		    StyledDocument doc = textReport.getStyledDocument();
+		    Style normal = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
+		    Style regular = doc.addStyle("regular", normal);
+
+		    int warnings = 0;
+			for (int i = 0; i < fileData.size(); i++) {
+			    String report = "";
+				FileInfo fi = fileData.get(i);
+				report += fi.type + " " + fi.hash;
+				report += " (" + fi.size + ") - ";
+				report += fi.name + "\n";
+				try {
+					doc.insertString(doc.getLength(), report, normal);
+				} catch (BadLocationException e1) {
+					// Ignore and continue
+				}
+			}
+			try {
+				doc.insertString(doc.getLength(), "\n\n" + warnings
+						+ " issue" + (warnings == 1 ? "" : "s")
+						+ " found.", normal);
+			} catch (BadLocationException e1) {
+				// Ignore and continue
 			}
 		}
 
