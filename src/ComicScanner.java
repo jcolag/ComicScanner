@@ -161,6 +161,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 		} else if (e.getSource() == buttonCheck) {
 			textReport.setText("");
 			compressedFiles.clear();
+			fileData.clear();
 			FileInfo archInfo = ArchiveType(pathname);
 			archInfo.name = filename;
 			fileData.add(archInfo);
@@ -232,18 +233,19 @@ public class ComicScanner extends JApplet implements ActionListener {
 				boolean mac = fi.type == 'x' && fi.name == ".DS_STORE";
 				boolean nonImg = fi.type == 'x' && fi.name != ".DS_STORE";
 				hashes.put(fi.hash, fi.size);
-				report += fi.type + " " + fi.hash;
-				report += " (" + fi.size + ") - ";
-				report += fi.name + "\n";
+				report = fi.name + " (" + fi.type + "/" + fi.size + " bytes)\n";
+//				report += fi.type + " " + fi.hash;
+//				report += " (" + fi.size + ") - ";
+//				report += fi.name + "\n";
 				try {
 					if (duplicate) {
-						doc.insertString(doc.getLength(), "\n\nDuplicate page.\n", warning);
+						doc.insertString(doc.getLength(), "\nDuplicate page.\n", warning);
 					}
 					if (mac) {
-						doc.insertString(doc.getLength(), "\n\nMac OS archive.", warning);
+						doc.insertString(doc.getLength(), "\nMac OS archive.", warning);
 					}
 					if (nonImg) {
-						doc.insertString(doc.getLength(), "\n\nNon-Image file in archive.\n", warning);
+						doc.insertString(doc.getLength(), "\nNon-Image file in archive.\n", warning);
 					}
 					if (duplicate || mac || nonImg) {
 						++warnings;
@@ -254,7 +256,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 				}
 			}
 			try {
-				doc.insertString(doc.getLength(), "\n\n" + warnings
+				doc.insertString(doc.getLength(), "\n" + warnings
 						+ " issue" + (warnings == 1 ? "" : "s")
 						+ " found.", normal);
 			} catch (BadLocationException e1) {
