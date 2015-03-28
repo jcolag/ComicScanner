@@ -3,12 +3,14 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.zip.*;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
@@ -212,18 +214,40 @@ public class ComicScanner extends JApplet implements ActionListener {
 				break;
 			}
 		} else if (e.getSource() == buttonSend) {
+			Hashtable<String, Integer> hashes = new Hashtable<String, Integer>();
+			
 		    StyledDocument doc = textReport.getStyledDocument();
 		    Style normal = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
 		    Style regular = doc.addStyle("regular", normal);
+		    Style warning = doc.addStyle("highlight", regular);
+		    StyleConstants.setForeground(warning, Color.orange);
+		    StyleConstants.setBold(warning, true);
 
 		    int warnings = 0;
 			for (int i = 0; i < fileData.size(); i++) {
 			    String report = "";
 				FileInfo fi = fileData.get(i);
+				boolean duplicate = hashes.containsKey(fi.hash)
+						&& hashes.get(fi.hash) == fi.size;
+				boolean mac = fi.type == 'x' && fi.name == ".DS_STORE";
+				boolean nonImg = fi.type == 'x' && fi.name != ".DS_STORE";
+				hashes.put(fi.hash, fi.size);
 				report += fi.type + " " + fi.hash;
 				report += " (" + fi.size + ") - ";
 				report += fi.name + "\n";
 				try {
+					if (duplicate) {
+						doc.insertString(doc.getLength(), "\n\nDuplicate page.\n", warning);
+					}
+					if (mac) {
+						doc.insertString(doc.getLength(), "\n\nMac OS archive.", warning);
+					}
+					if (nonImg) {
+						doc.insertString(doc.getLength(), "\n\nNon-Image file in archive.\n", warning);
+					}
+					if (duplicate || mac || nonImg) {
+						++warnings;
+					}
 					doc.insertString(doc.getLength(), report, normal);
 				} catch (BadLocationException e1) {
 					// Ignore and continue
