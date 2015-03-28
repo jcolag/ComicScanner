@@ -26,11 +26,12 @@ public class ComicScanner extends JApplet implements ActionListener {
 
 	JPanel panelMaster;
 	JList<String> listPublisher, listSeries;
-	JScrollPane scrollPublisher, scrollSeries;
+	JScrollPane scrollPublisher, scrollSeries, scrollReport;
 	JTextField textNumber, textUsername;
 	JPasswordField textPassword;
 	JFileChooser chooseComic;
 	JButton buttonChoose, buttonCheck, buttonSend;
+	JTextPane textReport;
 	Container cPane;
 
 	DefaultListModel<String> listModel;
@@ -53,6 +54,11 @@ public class ComicScanner extends JApplet implements ActionListener {
 		scrollSeries = new JScrollPane();
 		scrollSeries.setViewportView(listSeries);
 
+		textReport = new JTextPane();
+		scrollReport = new JScrollPane();
+		scrollReport.setViewportView(textReport);
+		textReport.setEditable(false);
+
 		textNumber = new JTextField("0", 4);
 		textUsername = new JTextField(32);
 		textPassword = new JPasswordField(32);
@@ -60,29 +66,30 @@ public class ComicScanner extends JApplet implements ActionListener {
 		buttonCheck = new JButton("Analyze");
 		buttonSend = new JButton("Send");
 
-		listModel.addElement("Ace");
-		listModel.addElement("Ajax-Farrell");
-		listModel.addElement("American Comics Group");
-		listModel.addElement("Avon");
-		listModel.addElement("Better/Nedor/Standard/Pines");
-		listModel.addElement("Centaur");
-		listModel.addElement("Charlton");
-		listModel.addElement("Chesler");
-		listModel.addElement("Columbia");
-		listModel.addElement("Dell");
+//		listModel.addElement("Ace");
+//		listModel.addElement("Ajax-Farrell");
+//		listModel.addElement("American Comics Group");
+//		listModel.addElement("Avon");
+//		listModel.addElement("Better/Nedor/Standard/Pines");
+//		listModel.addElement("Centaur");
+//		listModel.addElement("Charlton");
+//		listModel.addElement("Chesler");
+//		listModel.addElement("Columbia");
+//		listModel.addElement("Dell");
 		listPublisher.setModel(listModel);
 
 		cPane = getContentPane();
 		cPane.setLayout(new GridBagLayout());
 
-		addControlToContainer(cPane, 0, 0, scrollPublisher, true);
-		addControlToContainer(cPane, 1, 0, scrollSeries, true);
-		addControlToContainer(cPane, 2, 0, textNumber, false);
-		addControlToContainer(cPane, 0, 1, textUsername, false);
-		addControlToContainer(cPane, 1, 1, textPassword, false);
-		addControlToContainer(cPane, 0, 2, buttonChoose, false);
-		addControlToContainer(cPane, 0, 3, buttonCheck, false);
-		addControlToContainer(cPane, 1, 3, buttonSend, false);
+//		addControlToContainer(cPane, 0, 0, scrollPublisher, true, 0);
+//		addControlToContainer(cPane, 1, 0, scrollSeries, true, 0);
+//		addControlToContainer(cPane, 2, 0, textNumber, false, 0);
+//		addControlToContainer(cPane, 0, 1, textUsername, false, 0);
+//		addControlToContainer(cPane, 1, 1, textPassword, false, 0);
+		addControlToContainer(cPane, 0, 0, buttonChoose, false, 0);
+		addControlToContainer(cPane, 0, 1, buttonCheck, false, 0);
+		addControlToContainer(cPane, 1, 1, buttonSend, false, 0);
+		addControlToContainer(cPane, 0, 2, scrollReport, true, 1);
 
 		buttonChoose.addActionListener(this);
 		buttonCheck.addActionListener(this);
@@ -93,7 +100,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 	 * 
 	 */
 	public void addControlToContainer(Container pane, int x, int y,
-			JComponent control, boolean tall) {
+			JComponent control, boolean tall, int extraColumns) {
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = x;
 		gbc.gridy = y;
@@ -106,6 +113,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 		} else {
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 		}
+		gbc.gridwidth = extraColumns + 1;
 		pane.add(control, gbc);
 	}
 
