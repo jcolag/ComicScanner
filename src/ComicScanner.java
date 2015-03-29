@@ -186,11 +186,14 @@ public class ComicScanner extends JApplet implements ActionListener {
 
 						try {
 							byte[] buffer = new byte[(int) fileSize];
-							int len;
+							int offset = 0, len = 0;
 							FileInfo info;
 							InputStream in;
 							in = zipFile.getInputStream(entry);
-							len = in.read(buffer);
+							while (offset >= 0 && len < fileSize) {
+								len += offset;
+								offset = in.read(buffer, offset, 1000);
+							}
 							info = ImageType(buffer);
 							info.name = entry.getName();
 							info.createdOn = entry.getTime();
