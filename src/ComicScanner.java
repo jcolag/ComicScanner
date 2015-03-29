@@ -70,7 +70,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 		textPassword = new JPasswordField(32);
 		buttonChoose = new JButton("Choose Comic...");
 		buttonCheck = new JButton("Analyze");
-		buttonSend = new JButton("Send");
+		buttonSend = new JButton("Report");
 
 //		listModel.addElement("Ace");
 //		listModel.addElement("Ajax-Farrell");
