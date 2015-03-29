@@ -355,6 +355,10 @@ public class ComicScanner extends JApplet implements ActionListener {
 				&& ((buffer[262] == (byte) 0x00 && buffer[263] == (byte) 0x30 && buffer[264] == (byte) 0x30) || (buffer[262] == (byte) 0x20
 						&& buffer[263] == (byte) 0x20 && buffer[264] == (byte) 0x00))) {
 			fi.type = "tar";
+		} else if ((char) buffer[0] == '7' && (char) buffer[1] == 'z'
+				&& buffer[2] == (byte) 0xBC && buffer[3] == (byte) 0xAF
+				&& buffer[4] == (byte) 0x27 && buffer[5] == (byte) 0x1C) {
+			fi.type = "7z";
 		} else {
 			fi.type = "archive";
 		}
