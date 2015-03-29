@@ -166,7 +166,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 			archInfo.name = filename;
 			fileData.add(archInfo);
 			switch (archInfo.type) {
-			case 'z':
+			case "zip":
 				ZipFile zipFile = null;
 				Enumeration<?> entries;
 
@@ -230,8 +230,10 @@ public class ComicScanner extends JApplet implements ActionListener {
 				FileInfo fi = fileData.get(i);
 				boolean duplicate = hashes.containsKey(fi.hash)
 						&& hashes.get(fi.hash) == fi.size;
-				boolean mac = fi.type == 'x' && fi.name == ".DS_STORE";
-				boolean nonImg = fi.type == 'x' && fi.name != ".DS_STORE";
+				boolean mac = fi.type == "file" &&
+						(fi.name == ".DS_STORE" || fi.name == "__MACOSX");
+				boolean nonImg = fi.type == "file" && fi.name != ".DS_STORE"
+						&& fi.name != "__MACOSX";
 				hashes.put(fi.hash, fi.size);
 				report = fi.name + " (" + fi.type + "/" + fi.size + " bytes)\n";
 //				report += fi.type + " " + fi.hash;
@@ -278,25 +280,27 @@ public class ComicScanner extends JApplet implements ActionListener {
 				&& image[2] == (byte) 0x46 && image[3] == (byte) 0x38
 				&& (image[4] == (byte) 0x37 || image[4] == (byte) 0x39)
 				&& image[5] == (byte) 0x61) {
-			fi.type = 'g';
+			fi.type = "gif";
 		} else if (image.length > 3 && image[0] == (byte) 0x49
 				&& image[1] == (byte) 0x49 && image[2] == (byte) 0x2A
 				&& image[3] == (byte) 0x00) {
-			fi.type = 't';
+			fi.type = "tiff";
 		} else if (image.length > 3 && image[0] == (byte) 0x4D
 				&& image[1] == (byte) 0x4D && image[2] == (byte) 0x00
 				&& image[3] == (byte) 0x2A) {
-			fi.type = 't';
+			fi.type = "tiff";
 		} else if (image.length > 3 && image[0] == (byte) 0xFF
 				&& image[1] == (byte) 0xD8 && image[2] == (byte) 0xFF
 				&& image[3] == (byte) 0xE0) {
-			fi.type = 'j';
+			fi.type = "jpeg";
 		} else if (image.length > 7 && image[0] == (byte) 0x89
 				&& image[1] == (byte) 0x50 && image[2] == (byte) 0x4E
 				&& image[3] == (byte) 0x47 && image[4] == (byte) 0x0D
 				&& image[5] == (byte) 0x0A && image[6] == (byte) 0x1A
 				&& image[7] == (byte) 0x0A) {
-			fi.type = 'p';
+			fi.type = "png";
+		} else {
+			fi.type = "file";
 		}
 		return fi;
 	}
@@ -318,28 +322,28 @@ public class ComicScanner extends JApplet implements ActionListener {
 			int count = is.read(buffer);
 			is.close();
 			if (count != buffer.length) {
-				fi.type = 'n';
+				fi.type = "unknown";
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			fi.type = 'n';
+			fi.type = "unknown";
 		} catch (IOException e) {
 			e.printStackTrace();
-			fi.type = 'n';
+			fi.type = "unknown";
 		}
-		if (fi.type == 'n') {
+		if (fi.type == "unknown") {
 			return fi;
 		}
 
 		if ((char) buffer[0] == 'P' && (char) buffer[1] == 'K'
 				&& buffer[2] == (byte) 0x03 && buffer[3] == (byte) 0x04) {
-			fi.type = 'z';
+			fi.type = "zip";
 		} else if ((char) buffer[0] == 'R' && (char) buffer[1] == 'a'
 				&& (char) buffer[2] == 'r' && (char) buffer[3] == '!'
 				&& buffer[4] == (byte)0x1a && buffer[5] == (byte)0x07 &&
 				((buffer[6] == (byte)0x00
 				|| (buffer[6] == (byte)0x01 && buffer[7] == (byte)0x00)))) {
-			fi.type = 'r';
+			fi.type = "rar";
 		} else if (buffer[257] == (byte) 0x75
 				&& buffer[258] == (byte) 0x73
 				&& buffer[259] == (byte) 0x74
@@ -347,9 +351,9 @@ public class ComicScanner extends JApplet implements ActionListener {
 				&& buffer[261] == (byte) 0x72
 				&& ((buffer[262] == (byte) 0x00 && buffer[263] == (byte) 0x30 && buffer[264] == (byte) 0x30) || (buffer[262] == (byte) 0x20
 						&& buffer[263] == (byte) 0x20 && buffer[264] == (byte) 0x00))) {
-			fi.type = 't';
+			fi.type = "tar";
 		} else {
-			fi.type = 'x';
+			fi.type = "archive";
 		}
 		
 		fi.size = buffer.length;

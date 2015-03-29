@@ -13,9 +13,8 @@ import java.util.ArrayList;
  */
 public class FileInfo {
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-	public String name, hash, author;
+	public String name, type, hash, author;
 	byte[] digest;
-	public char type;
 	int parentId;
 	public int size;
 	ArrayList<Integer> derivedFrom;
