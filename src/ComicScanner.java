@@ -43,10 +43,10 @@ public class ComicScanner extends JApplet implements ActionListener {
 	DefaultListModel<String> listModel;
 
 	String pathname, filename;
-	ArrayList<String> compressedFiles;
 	ArrayList<FileInfo> fileData;
 
 	// Called when this applet is loaded into the browser.
+	@Override
 	public void init() {
 		// Execute a job on the event-dispatching thread; creating this applet's
 		// GUI.
@@ -128,14 +128,13 @@ public class ComicScanner extends JApplet implements ActionListener {
 	 */
 	public ComicScanner() throws HeadlessException {
 		// TODO Auto-generated constructor stub
-		compressedFiles = new ArrayList<String>();
 		fileData = new ArrayList<FileInfo>();
 	}
 
 	/**
 	 * 
 	 */
-	private void RetrieveFile() {
+	private void retrieveFile() {
 		JFileChooser chooser = new JFileChooser();
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(
 				"Comic Book Archives", "cbr", "cbz", "cbt");
@@ -155,14 +154,14 @@ public class ComicScanner extends JApplet implements ActionListener {
 	/**
 	 * 
 	 */
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == buttonChoose) {
-			RetrieveFile();
+			retrieveFile();
 		} else if (e.getSource() == buttonCheck) {
 			textReport.setText("");
-			compressedFiles.clear();
 			fileData.clear();
-			FileInfo archInfo = ArchiveType(pathname);
+			FileInfo archInfo = archiveType(pathname);
 			archInfo.name = filename;
 			fileData.add(archInfo);
 			switch (archInfo.type) {
@@ -180,9 +179,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 					entries = zipFile.entries();
 					while (entries.hasMoreElements()) {
 						ZipEntry entry = (ZipEntry) entries.nextElement();
-						String fname = entry.getName();
 						long fileSize = entry.getSize();
-						compressedFiles.add(fname);
 
 						try {
 							byte[] buffer = new byte[(int) fileSize];
@@ -194,7 +191,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 								len += offset;
 								offset = in.read(buffer, offset, 10000);
 							}
-							info = ImageType(buffer);
+							info = imageType(buffer);
 							info.name = entry.getName();
 							info.createdOn = entry.getTime();
 							info.size = len;
@@ -281,7 +278,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 	 * p => PNG
 	 * t => TIFF
 	 */
-	private FileInfo ImageType(byte[] image) {
+	private FileInfo imageType(byte[] image) {
 		FileInfo fi = new FileInfo();
 		if (image.length > 5 && image[0] == (byte) 0x47 && image[1] == (byte) 0x49
 				&& image[2] == (byte) 0x46 && image[3] == (byte) 0x38
@@ -320,7 +317,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 	 *  z => ZIP file
 	 *  x => Unknown
 	 */
-	private FileInfo ArchiveType(String filename) {
+	private FileInfo archiveType(String filename) {
 		FileInfo fi = new FileInfo();
 		File infile = new File(filename);
 		byte[] buffer = new byte[(int)infile.length()];
