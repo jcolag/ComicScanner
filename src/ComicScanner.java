@@ -45,110 +45,12 @@ public class ComicScanner extends JApplet implements ActionListener {
 	String pathname, filename;
 	ArrayList<FileInfo> fileData;
 
-	// Called when this applet is loaded into the browser.
-	@Override
-	public void init() {
-		// Execute a job on the event-dispatching thread; creating this applet's
-		// GUI.
-		listModel = new DefaultListModel<String>();
-
-		listPublisher = new JList<String>();
-		scrollPublisher = new JScrollPane();
-		scrollPublisher.setViewportView(listPublisher);
-
-		listSeries = new JList<String>();
-		scrollSeries = new JScrollPane();
-		scrollSeries.setViewportView(listSeries);
-
-		textReport = new JTextPane();
-		scrollReport = new JScrollPane();
-		scrollReport.setViewportView(textReport);
-		textReport.setEditable(false);
-
-		textNumber = new JTextField("0", 4);
-		textUsername = new JTextField(32);
-		textPassword = new JPasswordField(32);
-		buttonChoose = new JButton("Choose Comic...");
-		buttonCheck = new JButton("Analyze");
-		buttonSend = new JButton("Report");
-
-//		listModel.addElement("Ace");
-//		listModel.addElement("Ajax-Farrell");
-//		listModel.addElement("American Comics Group");
-//		listModel.addElement("Avon");
-//		listModel.addElement("Better/Nedor/Standard/Pines");
-//		listModel.addElement("Centaur");
-//		listModel.addElement("Charlton");
-//		listModel.addElement("Chesler");
-//		listModel.addElement("Columbia");
-//		listModel.addElement("Dell");
-		listPublisher.setModel(listModel);
-
-		cPane = getContentPane();
-		cPane.setLayout(new GridBagLayout());
-
-//		addControlToContainer(cPane, 0, 0, scrollPublisher, true, 0);
-//		addControlToContainer(cPane, 1, 0, scrollSeries, true, 0);
-//		addControlToContainer(cPane, 2, 0, textNumber, false, 0);
-//		addControlToContainer(cPane, 0, 1, textUsername, false, 0);
-//		addControlToContainer(cPane, 1, 1, textPassword, false, 0);
-		addControlToContainer(cPane, 0, 0, buttonChoose, false, 0);
-		addControlToContainer(cPane, 0, 1, buttonCheck, false, 0);
-		addControlToContainer(cPane, 1, 1, buttonSend, false, 0);
-		addControlToContainer(cPane, 0, 2, scrollReport, true, 1);
-
-		buttonChoose.addActionListener(this);
-		buttonCheck.addActionListener(this);
-		buttonSend.addActionListener(this);
-	}
-
-	/**
-	 * 
-	 */
-	public void addControlToContainer(Container pane, int x, int y,
-			JComponent control, boolean tall, int extraColumns) {
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = x;
-		gbc.gridy = y;
-		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.ipadx = 150;
-		if (tall) {
-			gbc.fill = GridBagConstraints.BOTH;
-			gbc.ipady = 200;
-			gbc.weighty = 0.5;
-		} else {
-			gbc.fill = GridBagConstraints.HORIZONTAL;
-		}
-		gbc.gridwidth = extraColumns + 1;
-		pane.add(control, gbc);
-	}
-
 	/**
 	 * @throws HeadlessException
 	 */
 	public ComicScanner() throws HeadlessException {
 		// TODO Auto-generated constructor stub
 		fileData = new ArrayList<FileInfo>();
-	}
-
-	/**
-	 * 
-	 */
-	private void retrieveFile() {
-		JFileChooser chooser = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter(
-				"Comic Book Archives", "cbr", "cbz", "cbt");
-		chooser.setFileFilter(filter);
-		int returnVal = chooser.showOpenDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			try {
-				pathname = chooser.getSelectedFile().getCanonicalPath();
-				filename = chooser.getSelectedFile().getName();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 	}
 
 	/**
@@ -220,93 +122,25 @@ public class ComicScanner extends JApplet implements ActionListener {
 
 	}
 
-	private void pageReport() {
-		Hashtable<String, Integer> hashes = new Hashtable<String, Integer>();
-		
-		StyledDocument doc = textReport.getStyledDocument();
-		Style normal = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
-		Style regular = doc.addStyle("regular", normal);
-		Style warning = doc.addStyle("highlight", regular);
-		StyleConstants.setForeground(warning, Color.orange);
-		StyleConstants.setBold(warning, true);
-
-		int warnings = 0;
-		for (int i = 0; i < fileData.size(); i++) {
-		    String report = "";
-			FileInfo fi = fileData.get(i);
-			boolean duplicate = hashes.containsKey(fi.hash)
-					&& hashes.get(fi.hash) == fi.size;
-			boolean mac = fi.type == "file" &&
-					(fi.name == ".DS_STORE" || fi.name == "__MACOSX");
-			boolean nonImg = fi.type == "file" && fi.name != ".DS_STORE"
-					&& fi.name != "__MACOSX";
-			hashes.put(fi.hash, fi.size);
-			report = fi.name + " (" + fi.type + "/" + fi.size + " bytes)\n";
-//			report += fi.type + " " + fi.hash;
-//			report += " (" + fi.size + ") - ";
-//			report += fi.name + "\n";
-			try {
-				if (duplicate) {
-					doc.insertString(doc.getLength(), "\nDuplicate page.\n", warning);
-				}
-				if (mac) {
-					doc.insertString(doc.getLength(), "\nMac OS archive.", warning);
-				}
-				if (nonImg) {
-					doc.insertString(doc.getLength(), "\nNon-Image file in archive.\n", warning);
-				}
-				if (duplicate || mac || nonImg) {
-					++warnings;
-				}
-				doc.insertString(doc.getLength(), report, normal);
-			} catch (BadLocationException e1) {
-				// Ignore and continue
-			}
-		}
-		try {
-			doc.insertString(doc.getLength(), "\n" + warnings
-					+ " issue" + (warnings == 1 ? "" : "s")
-					+ " found.", normal);
-		} catch (BadLocationException e1) {
-			// Ignore and continue
-		}
-	}
-
 	/**
-	 * g => GIF
-	 * j => JPEG
-	 * p => PNG
-	 * t => TIFF
+	 * 
 	 */
-	private FileInfo imageType(byte[] image) {
-		FileInfo fi = new FileInfo();
-		if (image.length > 5 && image[0] == (byte) 0x47 && image[1] == (byte) 0x49
-				&& image[2] == (byte) 0x46 && image[3] == (byte) 0x38
-				&& (image[4] == (byte) 0x37 || image[4] == (byte) 0x39)
-				&& image[5] == (byte) 0x61) {
-			fi.type = "gif";
-		} else if (image.length > 3 && image[0] == (byte) 0x49
-				&& image[1] == (byte) 0x49 && image[2] == (byte) 0x2A
-				&& image[3] == (byte) 0x00) {
-			fi.type = "tiff";
-		} else if (image.length > 3 && image[0] == (byte) 0x4D
-				&& image[1] == (byte) 0x4D && image[2] == (byte) 0x00
-				&& image[3] == (byte) 0x2A) {
-			fi.type = "tiff";
-		} else if (image.length > 3 && image[0] == (byte) 0xFF
-				&& image[1] == (byte) 0xD8 && image[2] == (byte) 0xFF
-				&& image[3] == (byte) 0xE0) {
-			fi.type = "jpeg";
-		} else if (image.length > 7 && image[0] == (byte) 0x89
-				&& image[1] == (byte) 0x50 && image[2] == (byte) 0x4E
-				&& image[3] == (byte) 0x47 && image[4] == (byte) 0x0D
-				&& image[5] == (byte) 0x0A && image[6] == (byte) 0x1A
-				&& image[7] == (byte) 0x0A) {
-			fi.type = "png";
+	public void addControlToContainer(Container pane, int x, int y,
+			JComponent control, boolean tall, int extraColumns) {
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = x;
+		gbc.gridy = y;
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.ipadx = 150;
+		if (tall) {
+			gbc.fill = GridBagConstraints.BOTH;
+			gbc.ipady = 200;
+			gbc.weighty = 0.5;
 		} else {
-			fi.type = "file";
+			gbc.fill = GridBagConstraints.HORIZONTAL;
 		}
-		return fi;
+		gbc.gridwidth = extraColumns + 1;
+		pane.add(control, gbc);
 	}
 
 	/**
@@ -369,5 +203,171 @@ public class ComicScanner extends JApplet implements ActionListener {
 		fi.CalculateDigest(buffer);
 
 		return fi;
+	}
+
+	/**
+	 * g => GIF
+	 * j => JPEG
+	 * p => PNG
+	 * t => TIFF
+	 */
+	private FileInfo imageType(byte[] image) {
+		FileInfo fi = new FileInfo();
+		if (image.length > 5 && image[0] == (byte) 0x47 && image[1] == (byte) 0x49
+				&& image[2] == (byte) 0x46 && image[3] == (byte) 0x38
+				&& (image[4] == (byte) 0x37 || image[4] == (byte) 0x39)
+				&& image[5] == (byte) 0x61) {
+			fi.type = "gif";
+		} else if (image.length > 3 && image[0] == (byte) 0x49
+				&& image[1] == (byte) 0x49 && image[2] == (byte) 0x2A
+				&& image[3] == (byte) 0x00) {
+			fi.type = "tiff";
+		} else if (image.length > 3 && image[0] == (byte) 0x4D
+				&& image[1] == (byte) 0x4D && image[2] == (byte) 0x00
+				&& image[3] == (byte) 0x2A) {
+			fi.type = "tiff";
+		} else if (image.length > 3 && image[0] == (byte) 0xFF
+				&& image[1] == (byte) 0xD8 && image[2] == (byte) 0xFF
+				&& image[3] == (byte) 0xE0) {
+			fi.type = "jpeg";
+		} else if (image.length > 7 && image[0] == (byte) 0x89
+				&& image[1] == (byte) 0x50 && image[2] == (byte) 0x4E
+				&& image[3] == (byte) 0x47 && image[4] == (byte) 0x0D
+				&& image[5] == (byte) 0x0A && image[6] == (byte) 0x1A
+				&& image[7] == (byte) 0x0A) {
+			fi.type = "png";
+		} else {
+			fi.type = "file";
+		}
+		return fi;
+	}
+
+	// Called when this applet is loaded into the browser.
+	@Override
+	public void init() {
+		// Execute a job on the event-dispatching thread; creating this applet's
+		// GUI.
+		listModel = new DefaultListModel<String>();
+
+		listPublisher = new JList<String>();
+		scrollPublisher = new JScrollPane();
+		scrollPublisher.setViewportView(listPublisher);
+
+		listSeries = new JList<String>();
+		scrollSeries = new JScrollPane();
+		scrollSeries.setViewportView(listSeries);
+
+		textReport = new JTextPane();
+		scrollReport = new JScrollPane();
+		scrollReport.setViewportView(textReport);
+		textReport.setEditable(false);
+
+		textNumber = new JTextField("0", 4);
+		textUsername = new JTextField(32);
+		textPassword = new JPasswordField(32);
+		buttonChoose = new JButton("Choose Comic...");
+		buttonCheck = new JButton("Analyze");
+		buttonSend = new JButton("Report");
+
+//		listModel.addElement("Ace");
+//		listModel.addElement("Ajax-Farrell");
+//		listModel.addElement("American Comics Group");
+//		listModel.addElement("Avon");
+//		listModel.addElement("Better/Nedor/Standard/Pines");
+//		listModel.addElement("Centaur");
+//		listModel.addElement("Charlton");
+//		listModel.addElement("Chesler");
+//		listModel.addElement("Columbia");
+//		listModel.addElement("Dell");
+		listPublisher.setModel(listModel);
+
+		cPane = getContentPane();
+		cPane.setLayout(new GridBagLayout());
+
+//		addControlToContainer(cPane, 0, 0, scrollPublisher, true, 0);
+//		addControlToContainer(cPane, 1, 0, scrollSeries, true, 0);
+//		addControlToContainer(cPane, 2, 0, textNumber, false, 0);
+//		addControlToContainer(cPane, 0, 1, textUsername, false, 0);
+//		addControlToContainer(cPane, 1, 1, textPassword, false, 0);
+		addControlToContainer(cPane, 0, 0, buttonChoose, false, 0);
+		addControlToContainer(cPane, 0, 1, buttonCheck, false, 0);
+		addControlToContainer(cPane, 1, 1, buttonSend, false, 0);
+		addControlToContainer(cPane, 0, 2, scrollReport, true, 1);
+
+		buttonChoose.addActionListener(this);
+		buttonCheck.addActionListener(this);
+		buttonSend.addActionListener(this);
+	}
+
+	private void pageReport() {
+		Hashtable<String, Integer> hashes = new Hashtable<String, Integer>();
+		
+		StyledDocument doc = textReport.getStyledDocument();
+		Style normal = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
+		Style regular = doc.addStyle("regular", normal);
+		Style warning = doc.addStyle("highlight", regular);
+		StyleConstants.setForeground(warning, Color.orange);
+		StyleConstants.setBold(warning, true);
+
+		int warnings = 0;
+		for (int i = 0; i < fileData.size(); i++) {
+		    String report = "";
+			FileInfo fi = fileData.get(i);
+			boolean duplicate = hashes.containsKey(fi.hash)
+					&& hashes.get(fi.hash) == fi.size;
+			boolean mac = fi.type == "file" &&
+					(fi.name == ".DS_STORE" || fi.name == "__MACOSX");
+			boolean nonImg = fi.type == "file" && fi.name != ".DS_STORE"
+					&& fi.name != "__MACOSX";
+			hashes.put(fi.hash, fi.size);
+			report = fi.name + " (" + fi.type + "/" + fi.size + " bytes)\n";
+//			report += fi.type + " " + fi.hash;
+//			report += " (" + fi.size + ") - ";
+//			report += fi.name + "\n";
+			try {
+				if (duplicate) {
+					doc.insertString(doc.getLength(), "\nDuplicate page.\n", warning);
+				}
+				if (mac) {
+					doc.insertString(doc.getLength(), "\nMac OS archive.", warning);
+				}
+				if (nonImg) {
+					doc.insertString(doc.getLength(), "\nNon-Image file in archive.\n", warning);
+				}
+				if (duplicate || mac || nonImg) {
+					++warnings;
+				}
+				doc.insertString(doc.getLength(), report, normal);
+			} catch (BadLocationException e1) {
+				// Ignore and continue
+			}
+		}
+		try {
+			doc.insertString(doc.getLength(), "\n" + warnings
+					+ " issue" + (warnings == 1 ? "" : "s")
+					+ " found.", normal);
+		} catch (BadLocationException e1) {
+			// Ignore and continue
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void retrieveFile() {
+		JFileChooser chooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+				"Comic Book Archives", "cbr", "cbz", "cbt");
+		chooser.setFileFilter(filter);
+		int returnVal = chooser.showOpenDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			try {
+				pathname = chooser.getSelectedFile().getCanonicalPath();
+				filename = chooser.getSelectedFile().getName();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }
