@@ -218,57 +218,61 @@ public class ComicScanner extends JApplet implements ActionListener {
 				break;
 			}
 		} else if (e.getSource() == buttonSend) {
-			Hashtable<String, Integer> hashes = new Hashtable<String, Integer>();
-			
-		    StyledDocument doc = textReport.getStyledDocument();
-		    Style normal = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
-		    Style regular = doc.addStyle("regular", normal);
-		    Style warning = doc.addStyle("highlight", regular);
-		    StyleConstants.setForeground(warning, Color.orange);
-		    StyleConstants.setBold(warning, true);
+			pageReport();
+		}
 
-		    int warnings = 0;
-			for (int i = 0; i < fileData.size(); i++) {
-			    String report = "";
-				FileInfo fi = fileData.get(i);
-				boolean duplicate = hashes.containsKey(fi.hash)
-						&& hashes.get(fi.hash) == fi.size;
-				boolean mac = fi.type == "file" &&
-						(fi.name == ".DS_STORE" || fi.name == "__MACOSX");
-				boolean nonImg = fi.type == "file" && fi.name != ".DS_STORE"
-						&& fi.name != "__MACOSX";
-				hashes.put(fi.hash, fi.size);
-				report = fi.name + " (" + fi.type + "/" + fi.size + " bytes)\n";
-//				report += fi.type + " " + fi.hash;
-//				report += " (" + fi.size + ") - ";
-//				report += fi.name + "\n";
-				try {
-					if (duplicate) {
-						doc.insertString(doc.getLength(), "\nDuplicate page.\n", warning);
-					}
-					if (mac) {
-						doc.insertString(doc.getLength(), "\nMac OS archive.", warning);
-					}
-					if (nonImg) {
-						doc.insertString(doc.getLength(), "\nNon-Image file in archive.\n", warning);
-					}
-					if (duplicate || mac || nonImg) {
-						++warnings;
-					}
-					doc.insertString(doc.getLength(), report, normal);
-				} catch (BadLocationException e1) {
-					// Ignore and continue
-				}
-			}
+	}
+
+	private void pageReport() {
+		Hashtable<String, Integer> hashes = new Hashtable<String, Integer>();
+		
+		StyledDocument doc = textReport.getStyledDocument();
+		Style normal = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
+		Style regular = doc.addStyle("regular", normal);
+		Style warning = doc.addStyle("highlight", regular);
+		StyleConstants.setForeground(warning, Color.orange);
+		StyleConstants.setBold(warning, true);
+
+		int warnings = 0;
+		for (int i = 0; i < fileData.size(); i++) {
+		    String report = "";
+			FileInfo fi = fileData.get(i);
+			boolean duplicate = hashes.containsKey(fi.hash)
+					&& hashes.get(fi.hash) == fi.size;
+			boolean mac = fi.type == "file" &&
+					(fi.name == ".DS_STORE" || fi.name == "__MACOSX");
+			boolean nonImg = fi.type == "file" && fi.name != ".DS_STORE"
+					&& fi.name != "__MACOSX";
+			hashes.put(fi.hash, fi.size);
+			report = fi.name + " (" + fi.type + "/" + fi.size + " bytes)\n";
+//			report += fi.type + " " + fi.hash;
+//			report += " (" + fi.size + ") - ";
+//			report += fi.name + "\n";
 			try {
-				doc.insertString(doc.getLength(), "\n" + warnings
-						+ " issue" + (warnings == 1 ? "" : "s")
-						+ " found.", normal);
+				if (duplicate) {
+					doc.insertString(doc.getLength(), "\nDuplicate page.\n", warning);
+				}
+				if (mac) {
+					doc.insertString(doc.getLength(), "\nMac OS archive.", warning);
+				}
+				if (nonImg) {
+					doc.insertString(doc.getLength(), "\nNon-Image file in archive.\n", warning);
+				}
+				if (duplicate || mac || nonImg) {
+					++warnings;
+				}
+				doc.insertString(doc.getLength(), report, normal);
 			} catch (BadLocationException e1) {
 				// Ignore and continue
 			}
 		}
-
+		try {
+			doc.insertString(doc.getLength(), "\n" + warnings
+					+ " issue" + (warnings == 1 ? "" : "s")
+					+ " found.", normal);
+		} catch (BadLocationException e1) {
+			// Ignore and continue
+		}
 	}
 
 	/**
