@@ -24,6 +24,10 @@ import content.FileInfo;
  * @author john
  * 
  */
+/**
+ * @author john
+ *
+ */
 public class ComicScanner extends JApplet implements ActionListener {
 	/**
 	 * 
@@ -63,7 +67,14 @@ public class ComicScanner extends JApplet implements ActionListener {
 		} else if (e.getSource() == buttonCheck) {
 			textReport.setText("");
 			fileData.clear();
-			byte[] fileBuffer = openFile(pathname);
+			File infile = new File(pathname);
+			byte[] fileBuffer;
+			try {
+				InputStream is = new FileInputStream(pathname);
+				fileBuffer = readFromStream(is, (int) infile.length());
+			} catch (FileNotFoundException err) {
+				fileBuffer = new byte[0];
+			}
 			FileInfo archInfo = fileType(fileBuffer, "archive");
 			archInfo.name = filename;
 			fileData.add(archInfo);
@@ -85,22 +96,14 @@ public class ComicScanner extends JApplet implements ActionListener {
 						long fileSize = entry.getSize();
 
 						try {
-							byte[] buffer = new byte[(int) fileSize];
-							int offset = 0, len = 0;
 							FileInfo info;
 							InputStream in;
 							in = zipFile.getInputStream(entry);
-							while (offset >= 0 && len < fileSize) {
-								len += offset;
-								offset = in.read(buffer, offset, 10000);
-							}
+							byte[] buffer = readFromStream(in, fileSize);
 							info = fileType(buffer, "file");
 							info.name = entry.getName();
 							info.createdOn = entry.getTime();
-							info.size = len;
-							info.CalculateDigest(buffer);
 							fileData.add(info);
-							in.close();
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -265,29 +268,8 @@ public class ComicScanner extends JApplet implements ActionListener {
 	}
 
 	/**
-	 * @param filename
-	 * @param fi
-	 * @return
+	 * 
 	 */
-	private byte[] openFile(String filename) {
-		File infile = new File(filename);
-		byte[] buffer = new byte[(int)infile.length()];
-		byte[] fail = new byte[0];
-		try {
-			InputStream is = new FileInputStream(filename);
-			int count = is.read(buffer);
-			is.close();
-			if (count != buffer.length) {
-				return fail;
-			}
-		} catch (FileNotFoundException e) {
-			return fail;
-		} catch (IOException e) {
-			return fail;
-		}
-		return buffer;
-	}
-
 	private void pageReport() {
 		Hashtable<String, Integer> hashes = new Hashtable<String, Integer>();
 		
@@ -338,6 +320,26 @@ public class ComicScanner extends JApplet implements ActionListener {
 		} catch (BadLocationException e1) {
 			// Ignore and continue
 		}
+	}
+
+	/**
+	 * @param in
+	 * @param fileSize
+	 * @return
+	 */
+	private byte[] readFromStream(InputStream in, long fileSize) {
+		byte[] buffer = new byte[(int) fileSize];
+		int offset = 0, len = 0;
+		try {
+			while (offset >= 0 && len < fileSize) {
+				len += offset;
+				offset = in.read(buffer, offset, in.available());
+			}
+			in.close();
+		} catch (IOException e) {
+			return new byte[0];
+		}
+		return buffer;
 	}
 
 	/**
