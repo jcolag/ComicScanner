@@ -63,7 +63,8 @@ public class ComicScanner extends JApplet implements ActionListener {
 		} else if (e.getSource() == buttonCheck) {
 			textReport.setText("");
 			fileData.clear();
-			FileInfo archInfo = archiveType(pathname);
+			byte[] fileBuffer = openFile(pathname);
+			FileInfo archInfo = fileType(fileBuffer, "archive");
 			archInfo.name = filename;
 			fileData.add(archInfo);
 			switch (archInfo.type) {
@@ -93,7 +94,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 								len += offset;
 								offset = in.read(buffer, offset, 10000);
 							}
-							info = imageType(buffer);
+							info = fileType(buffer, "file");
 							info.name = entry.getName();
 							info.createdOn = entry.getTime();
 							info.size = len;
@@ -145,44 +146,22 @@ public class ComicScanner extends JApplet implements ActionListener {
 
 	/**
 	 * Returns the sort of archive.
-	 *  n => No file
-	 *  r => RAR file
-	 *  t => TAR file
-	 *  z => ZIP file
-	 *  x => Unknown
 	 */
-	private FileInfo archiveType(String filename) {
+	private FileInfo fileType(byte[] buffer, String unknown) {
 		FileInfo fi = new FileInfo();
-		File infile = new File(filename);
-		byte[] buffer = new byte[(int)infile.length()];
-		try {
-			InputStream is = new FileInputStream(filename);
-			int count = is.read(buffer);
-			is.close();
-			if (count != buffer.length) {
-				fi.type = "unknown";
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			fi.type = "unknown";
-		} catch (IOException e) {
-			e.printStackTrace();
-			fi.type = "unknown";
-		}
-		if (fi.type == "unknown") {
-			return fi;
-		}
 
-		if ((char) buffer[0] == 'P' && (char) buffer[1] == 'K'
+		// Archive formats
+		if (buffer.length > 3 && (char) buffer[0] == 'P' && (char) buffer[1] == 'K'
 				&& buffer[2] == (byte) 0x03 && buffer[3] == (byte) 0x04) {
 			fi.type = "zip";
-		} else if ((char) buffer[0] == 'R' && (char) buffer[1] == 'a'
+		} else if (buffer.length > 7 && (char) buffer[0] == 'R' && (char) buffer[1] == 'a'
 				&& (char) buffer[2] == 'r' && (char) buffer[3] == '!'
 				&& buffer[4] == (byte)0x1a && buffer[5] == (byte)0x07 &&
 				((buffer[6] == (byte)0x00
 				|| (buffer[6] == (byte)0x01 && buffer[7] == (byte)0x00)))) {
 			fi.type = "rar";
-		} else if (buffer[257] == (byte) 0x75
+		} else if (buffer.length > 264
+				&& buffer[257] == (byte) 0x75
 				&& buffer[258] == (byte) 0x73
 				&& buffer[259] == (byte) 0x74
 				&& buffer[260] == (byte) 0x61
@@ -190,55 +169,41 @@ public class ComicScanner extends JApplet implements ActionListener {
 				&& ((buffer[262] == (byte) 0x00 && buffer[263] == (byte) 0x30 && buffer[264] == (byte) 0x30) || (buffer[262] == (byte) 0x20
 						&& buffer[263] == (byte) 0x20 && buffer[264] == (byte) 0x00))) {
 			fi.type = "tar";
-		} else if ((char) buffer[0] == '7' && (char) buffer[1] == 'z'
+		} else if (buffer.length > 5 && (char) buffer[0] == '7' && (char) buffer[1] == 'z'
 				&& buffer[2] == (byte) 0xBC && buffer[3] == (byte) 0xAF
 				&& buffer[4] == (byte) 0x27 && buffer[5] == (byte) 0x1C) {
 			fi.type = "7z";
+		// Image formats
+		} else if (buffer.length > 5 && buffer[0] == (byte) 0x47 && buffer[1] == (byte) 0x49
+				&& buffer[2] == (byte) 0x46 && buffer[3] == (byte) 0x38
+				&& (buffer[4] == (byte) 0x37 || buffer[4] == (byte) 0x39)
+				&& buffer[5] == (byte) 0x61) {
+			fi.type = "gif";
+		} else if (buffer.length > 3 && buffer[0] == (byte) 0x49
+				&& buffer[1] == (byte) 0x49 && buffer[2] == (byte) 0x2A
+				&& buffer[3] == (byte) 0x00) {
+			fi.type = "tiff";
+		} else if (buffer.length > 3 && buffer[0] == (byte) 0x4D
+				&& buffer[1] == (byte) 0x4D && buffer[2] == (byte) 0x00
+				&& buffer[3] == (byte) 0x2A) {
+			fi.type = "tiff";
+		} else if (buffer.length > 3 && buffer[0] == (byte) 0xFF
+				&& buffer[1] == (byte) 0xD8 && buffer[2] == (byte) 0xFF
+				&& buffer[3] == (byte) 0xE0) {
+			fi.type = "jpeg";
+		} else if (buffer.length > 7 && buffer[0] == (byte) 0x89
+				&& buffer[1] == (byte) 0x50 && buffer[2] == (byte) 0x4E
+				&& buffer[3] == (byte) 0x47 && buffer[4] == (byte) 0x0D
+				&& buffer[5] == (byte) 0x0A && buffer[6] == (byte) 0x1A
+				&& buffer[7] == (byte) 0x0A) {
+			fi.type = "png";
 		} else {
-			fi.type = "archive";
+			fi.type = unknown;
 		}
 		
 		fi.size = buffer.length;
-		fi.createdOn = infile.lastModified();
 		fi.CalculateDigest(buffer);
 
-		return fi;
-	}
-
-	/**
-	 * g => GIF
-	 * j => JPEG
-	 * p => PNG
-	 * t => TIFF
-	 */
-	private FileInfo imageType(byte[] image) {
-		FileInfo fi = new FileInfo();
-		if (image.length > 5 && image[0] == (byte) 0x47 && image[1] == (byte) 0x49
-				&& image[2] == (byte) 0x46 && image[3] == (byte) 0x38
-				&& (image[4] == (byte) 0x37 || image[4] == (byte) 0x39)
-				&& image[5] == (byte) 0x61) {
-			fi.type = "gif";
-		} else if (image.length > 3 && image[0] == (byte) 0x49
-				&& image[1] == (byte) 0x49 && image[2] == (byte) 0x2A
-				&& image[3] == (byte) 0x00) {
-			fi.type = "tiff";
-		} else if (image.length > 3 && image[0] == (byte) 0x4D
-				&& image[1] == (byte) 0x4D && image[2] == (byte) 0x00
-				&& image[3] == (byte) 0x2A) {
-			fi.type = "tiff";
-		} else if (image.length > 3 && image[0] == (byte) 0xFF
-				&& image[1] == (byte) 0xD8 && image[2] == (byte) 0xFF
-				&& image[3] == (byte) 0xE0) {
-			fi.type = "jpeg";
-		} else if (image.length > 7 && image[0] == (byte) 0x89
-				&& image[1] == (byte) 0x50 && image[2] == (byte) 0x4E
-				&& image[3] == (byte) 0x47 && image[4] == (byte) 0x0D
-				&& image[5] == (byte) 0x0A && image[6] == (byte) 0x1A
-				&& image[7] == (byte) 0x0A) {
-			fi.type = "png";
-		} else {
-			fi.type = "file";
-		}
 		return fi;
 	}
 
@@ -297,6 +262,30 @@ public class ComicScanner extends JApplet implements ActionListener {
 		buttonChoose.addActionListener(this);
 		buttonCheck.addActionListener(this);
 		buttonSend.addActionListener(this);
+	}
+
+	/**
+	 * @param filename
+	 * @param fi
+	 * @return
+	 */
+	private byte[] openFile(String filename) {
+		File infile = new File(filename);
+		byte[] buffer = new byte[(int)infile.length()];
+		byte[] fail = new byte[0];
+		try {
+			InputStream is = new FileInputStream(filename);
+			int count = is.read(buffer);
+			is.close();
+			if (count != buffer.length) {
+				return fail;
+			}
+		} catch (FileNotFoundException e) {
+			return fail;
+		} catch (IOException e) {
+			return fail;
+		}
+		return buffer;
 	}
 
 	private void pageReport() {
