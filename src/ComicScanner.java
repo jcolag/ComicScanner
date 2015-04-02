@@ -75,7 +75,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 			} catch (FileNotFoundException err) {
 				fileBuffer = new byte[0];
 			}
-			FileInfo archInfo = fileType(fileBuffer, "archive");
+			FileInfo archInfo = new FileInfo(fileBuffer, FileInfo.archive);
 			archInfo.name = filename;
 			fileData.add(archInfo);
 			switch (archInfo.type) {
@@ -96,11 +96,10 @@ public class ComicScanner extends JApplet implements ActionListener {
 						long fileSize = entry.getSize();
 
 						try {
-							FileInfo info;
 							InputStream in;
 							in = zipFile.getInputStream(entry);
 							byte[] buffer = readFromStream(in, fileSize);
-							info = fileType(buffer, "file");
+							FileInfo info = new FileInfo(buffer, FileInfo.file);
 							info.name = entry.getName();
 							info.createdOn = entry.getTime();
 							fileData.add(info);
@@ -145,69 +144,6 @@ public class ComicScanner extends JApplet implements ActionListener {
 		}
 		gbc.gridwidth = extraColumns + 1;
 		pane.add(control, gbc);
-	}
-
-	/**
-	 * Returns the sort of archive.
-	 */
-	private FileInfo fileType(byte[] buffer, String unknown) {
-		FileInfo fi = new FileInfo();
-
-		// Archive formats
-		if (buffer.length > 3 && (char) buffer[0] == 'P' && (char) buffer[1] == 'K'
-				&& buffer[2] == (byte) 0x03 && buffer[3] == (byte) 0x04) {
-			fi.type = "zip";
-		} else if (buffer.length > 7 && (char) buffer[0] == 'R' && (char) buffer[1] == 'a'
-				&& (char) buffer[2] == 'r' && (char) buffer[3] == '!'
-				&& buffer[4] == (byte)0x1a && buffer[5] == (byte)0x07 &&
-				((buffer[6] == (byte)0x00
-				|| (buffer[6] == (byte)0x01 && buffer[7] == (byte)0x00)))) {
-			fi.type = "rar";
-		} else if (buffer.length > 264
-				&& buffer[257] == (byte) 0x75
-				&& buffer[258] == (byte) 0x73
-				&& buffer[259] == (byte) 0x74
-				&& buffer[260] == (byte) 0x61
-				&& buffer[261] == (byte) 0x72
-				&& ((buffer[262] == (byte) 0x00 && buffer[263] == (byte) 0x30 && buffer[264] == (byte) 0x30) || (buffer[262] == (byte) 0x20
-						&& buffer[263] == (byte) 0x20 && buffer[264] == (byte) 0x00))) {
-			fi.type = "tar";
-		} else if (buffer.length > 5 && (char) buffer[0] == '7' && (char) buffer[1] == 'z'
-				&& buffer[2] == (byte) 0xBC && buffer[3] == (byte) 0xAF
-				&& buffer[4] == (byte) 0x27 && buffer[5] == (byte) 0x1C) {
-			fi.type = "7z";
-		// Image formats
-		} else if (buffer.length > 5 && buffer[0] == (byte) 0x47 && buffer[1] == (byte) 0x49
-				&& buffer[2] == (byte) 0x46 && buffer[3] == (byte) 0x38
-				&& (buffer[4] == (byte) 0x37 || buffer[4] == (byte) 0x39)
-				&& buffer[5] == (byte) 0x61) {
-			fi.type = "gif";
-		} else if (buffer.length > 3 && buffer[0] == (byte) 0x49
-				&& buffer[1] == (byte) 0x49 && buffer[2] == (byte) 0x2A
-				&& buffer[3] == (byte) 0x00) {
-			fi.type = "tiff";
-		} else if (buffer.length > 3 && buffer[0] == (byte) 0x4D
-				&& buffer[1] == (byte) 0x4D && buffer[2] == (byte) 0x00
-				&& buffer[3] == (byte) 0x2A) {
-			fi.type = "tiff";
-		} else if (buffer.length > 3 && buffer[0] == (byte) 0xFF
-				&& buffer[1] == (byte) 0xD8 && buffer[2] == (byte) 0xFF
-				&& buffer[3] == (byte) 0xE0) {
-			fi.type = "jpeg";
-		} else if (buffer.length > 7 && buffer[0] == (byte) 0x89
-				&& buffer[1] == (byte) 0x50 && buffer[2] == (byte) 0x4E
-				&& buffer[3] == (byte) 0x47 && buffer[4] == (byte) 0x0D
-				&& buffer[5] == (byte) 0x0A && buffer[6] == (byte) 0x1A
-				&& buffer[7] == (byte) 0x0A) {
-			fi.type = "png";
-		} else {
-			fi.type = unknown;
-		}
-		
-		fi.size = buffer.length;
-		fi.CalculateDigest(buffer);
-
-		return fi;
 	}
 
 	// Called when this applet is loaded into the browser.
