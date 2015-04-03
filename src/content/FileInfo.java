@@ -6,6 +6,8 @@ package content;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
 
 /**
  * @author john
@@ -13,6 +15,9 @@ import java.util.ArrayList;
  */
 public class FileInfo {
 	public static String archive = "archive", file = "file";
+	public static ArrayList<FileInfo> fileData = new ArrayList<FileInfo>();
+	private static Hashtable<String, Integer> hashes = new Hashtable<String, Integer>(),
+			warnings = new Hashtable<String, Integer>();
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 	public String name, type, hash, author;
 	byte[] digest;
@@ -21,6 +26,7 @@ public class FileInfo {
 	ArrayList<Integer> derivedFrom;
 	public long createdOn;
 	boolean older, rotated, edited, brightened, colors, other;
+	public boolean duplicate;
 
 	/**
 	 * @param buffer
@@ -85,7 +91,10 @@ public class FileInfo {
 		}
 
 		size = buffer.length;
-		CalculateDigest(buffer);
+		calculateDigest(buffer);
+		fileData.add(this);
+		duplicate = hashes.containsKey(hash) && hashes.get(hash) == size;
+		hashes.put(hash, size);
 	}
 
 	/**
@@ -94,7 +103,7 @@ public class FileInfo {
 	 *            is the original file
 	 * @return true if the hash is valid
 	 */
-	private boolean CalculateDigest(byte[] input) {
+	private boolean calculateDigest(byte[] input) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("SHA-256");
 			md.update(input);
@@ -109,5 +118,70 @@ public class FileInfo {
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * @return
+	 */
+	public static int nWarnings() {
+		int total = 0;
+		Iterator<Integer> iter = warnings.values().iterator();
+		while (iter.hasNext()) {
+			total += iter.next();
+		}
+		return total;
+	}
+	
+	public String report() {
+		String rpt = name + " (" + type + "/" + size + " bytes)\n";
+//		report += type + " " + hash;
+//		report += " (" + size + ") - ";
+//		report += name + "\n";
+		return rpt;
+	}
+	
+	/**
+	 * 
+	 */
+	public static void resetTracking() {
+		fileData.clear();
+		hashes.clear();
+		warnings.clear();
+	}
+	
+	/**
+	 * @param condition
+	 * @return
+	 */
+	private String warn(boolean condition, String mesg) {
+		if (condition && !warnings.containsKey(hash)) {
+			warnings.put(hash, 1);
+		} else if (condition) {
+			warnings.put(hash, warnings.get(hash) + 1);
+		}
+		return condition ? "\n" + mesg + ".\n" : "";
+	}
+	
+	/**
+	 * @return
+	 */
+	public String warnDuplicate() {
+		return warn(duplicate, "Duplicate page");
+	}
+	
+	/**
+	 * @return
+	 */
+	public String warnMac() {
+		return warn(type == "file" && (name == ".DS_STORE" || name == "__MACOSX"),
+				"Mac OS archive");
+	}
+	
+	/**
+	 * @return
+	 */
+	public String warnOdd() {
+		return warn(type == "file" && name != ".DS_STORE" && name != "__MACOSX",
+				"Non-Image file in archive");
 	}
 }

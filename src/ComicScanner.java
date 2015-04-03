@@ -1,9 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.zip.*;
 
 import javax.swing.*;
@@ -47,14 +45,12 @@ public class ComicScanner extends JApplet implements ActionListener {
 	DefaultListModel<String> listModel;
 
 	String pathname, filename;
-	ArrayList<FileInfo> fileData;
 
 	/**
 	 * @throws HeadlessException
 	 */
 	public ComicScanner() throws HeadlessException {
 		// TODO Auto-generated constructor stub
-		fileData = new ArrayList<FileInfo>();
 	}
 
 	/**
@@ -66,7 +62,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 			retrieveFile();
 		} else if (e.getSource() == buttonCheck) {
 			textReport.setText("");
-			fileData.clear();
+			FileInfo.resetTracking();
 			File infile = new File(pathname);
 			byte[] fileBuffer;
 			try {
@@ -77,7 +73,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 			}
 			FileInfo archInfo = new FileInfo(fileBuffer, FileInfo.archive);
 			archInfo.name = filename;
-			fileData.add(archInfo);
+			archInfo.createdOn = infile.lastModified();
 			switch (archInfo.type) {
 			case "zip":
 				ZipFile zipFile = null;
@@ -102,7 +98,6 @@ public class ComicScanner extends JApplet implements ActionListener {
 							FileInfo info = new FileInfo(buffer, FileInfo.file);
 							info.name = entry.getName();
 							info.createdOn = entry.getTime();
-							fileData.add(info);
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -207,8 +202,6 @@ public class ComicScanner extends JApplet implements ActionListener {
 	 * 
 	 */
 	private void pageReport() {
-		Hashtable<String, Integer> hashes = new Hashtable<String, Integer>();
-		
 		StyledDocument doc = textReport.getStyledDocument();
 		Style normal = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
 		Style regular = doc.addStyle("regular", normal);
@@ -216,40 +209,19 @@ public class ComicScanner extends JApplet implements ActionListener {
 		StyleConstants.setForeground(warning, Color.orange);
 		StyleConstants.setBold(warning, true);
 
-		int warnings = 0;
-		for (int i = 0; i < fileData.size(); i++) {
-		    String report = "";
-			FileInfo fi = fileData.get(i);
-			boolean duplicate = hashes.containsKey(fi.hash)
-					&& hashes.get(fi.hash) == fi.size;
-			boolean mac = fi.type == "file" &&
-					(fi.name == ".DS_STORE" || fi.name == "__MACOSX");
-			boolean nonImg = fi.type == "file" && fi.name != ".DS_STORE"
-					&& fi.name != "__MACOSX";
-			hashes.put(fi.hash, fi.size);
-			report = fi.name + " (" + fi.type + "/" + fi.size + " bytes)\n";
-//			report += fi.type + " " + fi.hash;
-//			report += " (" + fi.size + ") - ";
-//			report += fi.name + "\n";
+		for (int i = 0; i < FileInfo.fileData.size(); i++) {
+			FileInfo fi = FileInfo.fileData.get(i);
 			try {
-				if (duplicate) {
-					doc.insertString(doc.getLength(), "\nDuplicate page.\n", warning);
-				}
-				if (mac) {
-					doc.insertString(doc.getLength(), "\nMac OS archive.", warning);
-				}
-				if (nonImg) {
-					doc.insertString(doc.getLength(), "\nNon-Image file in archive.\n", warning);
-				}
-				if (duplicate || mac || nonImg) {
-					++warnings;
-				}
-				doc.insertString(doc.getLength(), report, normal);
+				doc.insertString(doc.getLength(), fi.warnDuplicate(), warning);
+				doc.insertString(doc.getLength(), fi.warnMac(), warning);
+				doc.insertString(doc.getLength(), fi.warnOdd(), warning);
+				doc.insertString(doc.getLength(), fi.report(), normal);
 			} catch (BadLocationException e1) {
 				// Ignore and continue
 			}
 		}
 		try {
+			int warnings = FileInfo.nWarnings();
 			doc.insertString(doc.getLength(), "\n" + warnings
 					+ " issue" + (warnings == 1 ? "" : "s")
 					+ " found.", normal);
