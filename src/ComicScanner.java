@@ -64,14 +64,14 @@ public class ComicScanner extends JApplet implements ActionListener {
 			textReport.setText("");
 			FileInfo.resetTracking();
 			File infile = new File(pathname);
-			byte[] fileBuffer;
+			byte[] buffer;
 			try {
 				InputStream is = new FileInputStream(pathname);
-				fileBuffer = readFromStream(is, (int) infile.length());
+				buffer = readFromStream(is, (int) infile.length());
 			} catch (FileNotFoundException err) {
-				fileBuffer = new byte[0];
+				buffer = new byte[0];
 			}
-			FileInfo archInfo = new FileInfo(fileBuffer, FileInfo.archive);
+			FileInfo archInfo = new FileInfo(buffer, FileInfo.archive);
 			archInfo.name = filename;
 			archInfo.createdOn = infile.lastModified();
 			switch (archInfo.type) {
@@ -94,7 +94,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 						try {
 							InputStream in;
 							in = zipFile.getInputStream(entry);
-							byte[] buffer = readFromStream(in, fileSize);
+							buffer = readFromStream(in, fileSize);
 							FileInfo info = new FileInfo(buffer, FileInfo.file);
 							info.name = entry.getName();
 							info.createdOn = entry.getTime();
