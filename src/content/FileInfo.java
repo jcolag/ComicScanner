@@ -19,15 +19,38 @@ public class FileInfo {
 	private static Hashtable<String, Integer> hashes = new Hashtable<String, Integer>(),
 			warnings = new Hashtable<String, Integer>();
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+	/**
+	 * @return
+	 */
+	public static int nWarnings() {
+		int total = 0;
+		Iterator<Integer> iter = warnings.values().iterator();
+		while (iter.hasNext()) {
+			total += iter.next();
+		}
+		return total;
+	}
+
+	/**
+	 * 
+	 */
+	public static void resetTracking() {
+		fileData.clear();
+		hashes.clear();
+		warnings.clear();
+	}
 	public String name, type, hash, author;
 	byte[] digest;
 	int parentId;
 	public int size;
 	ArrayList<Integer> derivedFrom;
 	public long createdOn;
-	boolean older, rotated, edited, brightened, colors, other;
-	public boolean duplicate;
 
+	boolean older, rotated, edited, brightened, colors, other;
+
+	public boolean duplicate;
+	
 	/**
 	 * @param buffer
 	 * @param unknown
@@ -96,7 +119,7 @@ public class FileInfo {
 		duplicate = hashes.containsKey(hash) && hashes.get(hash) == size;
 		hashes.put(hash, size);
 	}
-
+	
 	/**
 	 * 
 	 * @param input
@@ -120,33 +143,12 @@ public class FileInfo {
 		return true;
 	}
 	
-	/**
-	 * @return
-	 */
-	public static int nWarnings() {
-		int total = 0;
-		Iterator<Integer> iter = warnings.values().iterator();
-		while (iter.hasNext()) {
-			total += iter.next();
-		}
-		return total;
-	}
-	
 	public String report() {
 		String rpt = name + " (" + type + "/" + size + " bytes)\n";
 //		report += type + " " + hash;
 //		report += " (" + size + ") - ";
 //		report += name + "\n";
 		return rpt;
-	}
-	
-	/**
-	 * 
-	 */
-	public static void resetTracking() {
-		fileData.clear();
-		hashes.clear();
-		warnings.clear();
 	}
 	
 	/**
