@@ -26,6 +26,10 @@ import content.FileInfo;
  * @author john
  *
  */
+/**
+ * @author john
+ *
+ */
 public class ComicScanner extends JApplet implements ActionListener {
 	/**
 	 * 
@@ -61,59 +65,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 		if (e.getSource() == buttonChoose) {
 			retrieveFile();
 		} else if (e.getSource() == buttonCheck) {
-			textReport.setText("");
-			FileInfo.resetTracking();
-			File infile = new File(pathname);
-			byte[] buffer;
-			try {
-				InputStream is = new FileInputStream(pathname);
-				buffer = readFromStream(is, (int) infile.length());
-			} catch (FileNotFoundException err) {
-				buffer = new byte[0];
-			}
-			FileInfo archInfo = new FileInfo(buffer, FileInfo.archive);
-			archInfo.name = filename;
-			archInfo.createdOn = infile.lastModified();
-			switch (archInfo.type) {
-			case "zip":
-				ZipFile zipFile = null;
-				Enumeration<?> entries;
-
-				try {
-					zipFile = new ZipFile(pathname);
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				if (zipFile != null) {
-					entries = zipFile.entries();
-					while (entries.hasMoreElements()) {
-						ZipEntry entry = (ZipEntry) entries.nextElement();
-						long fileSize = entry.getSize();
-
-						try {
-							InputStream in;
-							in = zipFile.getInputStream(entry);
-							buffer = readFromStream(in, fileSize);
-							FileInfo info = new FileInfo(buffer, FileInfo.file);
-							info.name = entry.getName();
-							info.createdOn = entry.getTime();
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-
-					}
-				}
-
-				try {
-					zipFile.close();
-				} catch (IOException e1) {
-					// Don't bother
-				}
-
-				break;
-			}
+			unpackArchive();
 		} else if (e.getSource() == buttonSend) {
 			pageReport();
 		}
@@ -267,6 +219,61 @@ public class ComicScanner extends JApplet implements ActionListener {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void unpackArchive() {
+		textReport.setText("");
+		FileInfo.resetTracking();
+		File infile = new File(pathname);
+		byte[] buffer;
+		try {
+			InputStream is = new FileInputStream(pathname);
+			buffer = readFromStream(is, (int) infile.length());
+		} catch (FileNotFoundException err) {
+			buffer = new byte[0];
+		}
+		FileInfo archInfo = new FileInfo(buffer, FileInfo.archive);
+		archInfo.name = filename;
+		archInfo.createdOn = infile.lastModified();
+		switch (archInfo.type) {
+		case "zip":
+			ZipFile zipFile = null;
+			Enumeration<?> entries;
+
+			try {
+				zipFile = new ZipFile(pathname);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			if (zipFile != null) {
+				entries = zipFile.entries();
+				while (entries.hasMoreElements()) {
+					ZipEntry entry = (ZipEntry) entries.nextElement();
+					long fileSize = entry.getSize();
+
+					try {
+						InputStream in = zipFile.getInputStream(entry);
+						buffer = readFromStream(in, fileSize);
+						FileInfo info = new FileInfo(buffer, FileInfo.file);
+						info.name = entry.getName();
+						info.createdOn = entry.getTime();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+			try {
+				zipFile.close();
+			} catch (IOException e1) {
+				// Don't bother
+			}
+			break;
 		}
 	}
 }
