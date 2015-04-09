@@ -2,6 +2,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
 import java.util.zip.*;
 
 import javax.swing.*;
@@ -11,6 +13,10 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+
+import de.innosystec.unrar.*;
+import de.innosystec.unrar.exception.RarException;
+import de.innosystec.unrar.rarfile.*;
 
 import content.FileInfo;
 
@@ -240,6 +246,28 @@ public class ComicScanner extends JApplet implements ActionListener {
 		archInfo.name = filename;
 		archInfo.createdOn = infile.lastModified();
 		switch (archInfo.type) {
+		case "rar":
+			Archive rarFile = null;
+			List<FileHeader> headers = null;
+			try {
+				rarFile = new Archive(infile, null, false);
+				headers = rarFile.getFileHeaders();
+				Iterator<FileHeader> iter = headers.iterator();
+				while (headers != null && iter.hasNext()) {
+					FileHeader head = iter.next();
+					ByteArrayOutputStream os = new ByteArrayOutputStream();
+					rarFile.extractFile(head, os);
+					FileInfo info = new FileInfo(os.toByteArray(), FileInfo.file);
+					info.name = head.getFileNameString();
+					info.createdOn = head.getMTime().getTime();
+				}
+				rarFile.close();
+			} catch (RarException | IOException e) {
+				// TODO Auto-generated catch block
+				System.out.println(e.getMessage());
+				e.printStackTrace();
+			}
+			break;
 		case "zip":
 			ZipFile zipFile = null;
 			Enumeration<?> entries;
