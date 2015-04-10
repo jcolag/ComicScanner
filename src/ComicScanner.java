@@ -257,7 +257,11 @@ public class ComicScanner extends JApplet implements ActionListener {
 					FileHeader head = iter.next();
 					ByteArrayOutputStream os = new ByteArrayOutputStream();
 					rarFile.extractFile(head, os);
-					FileInfo info = new FileInfo(os.toByteArray(), FileInfo.file);
+					buffer = os.toByteArray();
+					if (buffer.length == 0 && !iter.hasNext()) {
+						continue;
+					}
+					FileInfo info = new FileInfo(buffer, FileInfo.file);
 					info.name = head.getFileNameString();
 					info.createdOn = head.getMTime().getTime();
 				}
