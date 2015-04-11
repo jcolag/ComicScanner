@@ -101,7 +101,10 @@ public class FileInfo {
 			type = "tiff";
 		} else if (buffer.length > 3 && buffer[0] == (byte) 0xFF
 				&& buffer[1] == (byte) 0xD8 && buffer[2] == (byte) 0xFF
-				&& buffer[3] == (byte) 0xE0) {
+				&&
+				(buffer[3] == (byte) 0xE0
+				|| buffer[3] == (byte) 0xE1
+				|| buffer[3] == (byte) 0xDB)) {
 			type = "jpeg";
 		} else if (buffer.length > 7 && buffer[0] == (byte) 0x89
 				&& buffer[1] == (byte) 0x50 && buffer[2] == (byte) 0x4E
