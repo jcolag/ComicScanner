@@ -3,11 +3,17 @@
  */
 package content;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+
+import javax.imageio.*;
 
 /**
  * @author john
@@ -43,7 +49,7 @@ public class FileInfo {
 	public String name, type, hash, author;
 	byte[] digest;
 	int parentId;
-	public int size;
+	public int size, height = -1, width = -1;
 	ArrayList<Integer> derivedFrom;
 	public long createdOn;
 
@@ -118,6 +124,16 @@ public class FileInfo {
 
 		size = buffer.length;
 		calculateDigest(buffer);
+		
+		try {
+			InputStream in = new ByteArrayInputStream(buffer);
+			BufferedImage image = ImageIO.read(in);
+			height = image.getHeight();
+			width = image.getWidth();
+		} catch (IOException | NullPointerException e) {
+			// Probably not an image.
+		}
+		
 		fileData.add(this);
 		duplicate = hashes.containsKey(hash) && hashes.get(hash) == size;
 		hashes.put(hash, size);
@@ -147,7 +163,8 @@ public class FileInfo {
 	}
 	
 	public String report() {
-		String rpt = name + " (" + type + "/" + size + " bytes)\n";
+		String sz = height > 0 ? ("" + width + "x" + height + " ") : "";
+		String rpt = name + " (" + sz + type + ")\n";
 //		report += type + " " + hash;
 //		report += " (" + size + ") - ";
 //		report += name + "\n";
