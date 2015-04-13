@@ -52,6 +52,7 @@ public class FileInfo {
 	public int size, height = -1, width = -1;
 	ArrayList<Integer> derivedFrom;
 	public long createdOn;
+	public boolean folder = false;
 
 	boolean older, rotated, edited, brightened, colors, other;
 
@@ -130,7 +131,7 @@ public class FileInfo {
 			BufferedImage image = ImageIO.read(in);
 			height = image.getHeight();
 			width = image.getWidth();
-		} catch (IOException | NullPointerException e) {
+		} catch (IOException | NullPointerException | ArrayIndexOutOfBoundsException e) {
 			// Probably not an image.
 		}
 		
@@ -183,7 +184,7 @@ public class FileInfo {
 		}
 		return condition ? "\n" + mesg + ".\n" : "";
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -194,8 +195,16 @@ public class FileInfo {
 	/**
 	 * @return
 	 */
+	public String warnFolder() {
+		return warn(folder && !(name == ".DS_STORE" || name == "__MACOSX"),
+				"Folder");
+	}
+	
+	/**
+	 * @return
+	 */
 	public String warnMac() {
-		return warn(type == "file" && (name == ".DS_STORE" || name == "__MACOSX"),
+		return warn(folder && (name == ".DS_STORE" || name == "__MACOSX"),
 				"Mac OS archive");
 	}
 	
@@ -203,7 +212,8 @@ public class FileInfo {
 	 * @return
 	 */
 	public String warnOdd() {
-		return warn(type == "file" && name != ".DS_STORE" && name != "__MACOSX",
+		return warn(type == "file" && !folder && name != ".DS_STORE"
+				&& name != "__MACOSX",
 				"Non-Image file in archive");
 	}
 }

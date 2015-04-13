@@ -173,6 +173,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 				doc.insertString(doc.getLength(), fi.warnDuplicate(), warning);
 				doc.insertString(doc.getLength(), fi.warnMac(), warning);
 				doc.insertString(doc.getLength(), fi.warnOdd(), warning);
+				doc.insertString(doc.getLength(), fi.warnFolder(), warning);
 				doc.insertString(doc.getLength(), fi.report(), normal);
 			} catch (BadLocationException e1) {
 				// Ignore and continue
@@ -258,12 +259,10 @@ public class ComicScanner extends JApplet implements ActionListener {
 					ByteArrayOutputStream os = new ByteArrayOutputStream();
 					rarFile.extractFile(head, os);
 					buffer = os.toByteArray();
-					if (buffer.length == 0 && !iter.hasNext()) {
-						continue;
-					}
 					FileInfo info = new FileInfo(buffer, FileInfo.file);
 					info.name = head.getFileNameString();
 					info.createdOn = head.getMTime().getTime();
+					info.folder = head.isDirectory();
 				}
 				rarFile.close();
 			} catch (RarException | IOException e) {
@@ -294,6 +293,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 						FileInfo info = new FileInfo(buffer, FileInfo.file);
 						info.name = entry.getName();
 						info.createdOn = entry.getTime();
+						info.folder = entry.isDirectory();
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
