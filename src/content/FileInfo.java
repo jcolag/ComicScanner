@@ -10,8 +10,10 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.imageio.*;
 
@@ -24,6 +26,29 @@ public class FileInfo {
 	public static ArrayList<FileInfo> fileData = new ArrayList<FileInfo>();
 	private static Hashtable<String, Integer> hashes = new Hashtable<String, Integer>(),
 			warnings = new Hashtable<String, Integer>();
+	private static HashMap<String, String> signatures = new HashMap<String, String>() {
+		{
+			put("504b0304", "zip");
+			put("526172211A0700", "rar");
+			put("526172211A070100", "rar");
+			put("7573746172003030:257", "tar");
+			put("7573746172202000:257", "tar");
+			put("377ABCAF271C", "7z");
+			put("474946383761", "gif");
+			put("474946383961", "gif");
+			put("49492A00", "tiff");
+			put("4D4D002A", "tiff");
+			put("FFD8FFE0", "jpeg");
+			put("FFD8FFE1", "jpeg");
+			put("FFD8FFDB", "jpeg");
+			put("89504E470D0A1A0A", "png");
+		}
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+	};
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
 	/**
@@ -46,6 +71,7 @@ public class FileInfo {
 		hashes.clear();
 		warnings.clear();
 	}
+
 	public String name, type, hash, author;
 	byte[] digest;
 	int parentId;
@@ -64,68 +90,27 @@ public class FileInfo {
 	 */
 	public FileInfo(byte[] buffer, String unknown) {
 		// Archive formats
-		if (buffer.length > 3 && (char) buffer[0] == 'P'
-				&& (char) buffer[1] == 'K' && buffer[2] == (byte) 0x03
-				&& buffer[3] == (byte) 0x04) {
-			type = "zip";
-		} else if (buffer.length > 7
-				&& (char) buffer[0] == 'R'
-				&& (char) buffer[1] == 'a'
-				&& (char) buffer[2] == 'r'
-				&& (char) buffer[3] == '!'
-				&& buffer[4] == (byte) 0x1A
-				&& buffer[5] == (byte) 0x07
-				&& ((buffer[6] == (byte) 0x00 || (buffer[6] == (byte) 0x01 && buffer[7] == (byte) 0x00)))) {
-			type = "rar";
-		} else if (buffer.length > 264
-				&& buffer[257] == (byte) 0x75
-				&& buffer[258] == (byte) 0x73
-				&& buffer[259] == (byte) 0x74
-				&& buffer[260] == (byte) 0x61
-				&& buffer[261] == (byte) 0x72
-				&& ((buffer[262] == (byte) 0x00 && buffer[263] == (byte) 0x30 && buffer[264] == (byte) 0x30) || (buffer[262] == (byte) 0x20
-						&& buffer[263] == (byte) 0x20 && buffer[264] == (byte) 0x00))) {
-			type = "tar";
-		} else if (buffer.length > 5 && (char) buffer[0] == '7'
-				&& (char) buffer[1] == 'z' && buffer[2] == (byte) 0xBC
-				&& buffer[3] == (byte) 0xAF && buffer[4] == (byte) 0x27
-				&& buffer[5] == (byte) 0x1C) {
-			type = "7z";
-			// Image formats
-		} else if (buffer.length > 5 && buffer[0] == (byte) 0x47
-				&& buffer[1] == (byte) 0x49 && buffer[2] == (byte) 0x46
-				&& buffer[3] == (byte) 0x38
-				&& (buffer[4] == (byte) 0x37 || buffer[4] == (byte) 0x39)
-				&& buffer[5] == (byte) 0x61) {
-			type = "gif";
-		} else if (buffer.length > 3 && buffer[0] == (byte) 0x49
-				&& buffer[1] == (byte) 0x49 && buffer[2] == (byte) 0x2A
-				&& buffer[3] == (byte) 0x00) {
-			type = "tiff";
-		} else if (buffer.length > 3 && buffer[0] == (byte) 0x4D
-				&& buffer[1] == (byte) 0x4D && buffer[2] == (byte) 0x00
-				&& buffer[3] == (byte) 0x2A) {
-			type = "tiff";
-		} else if (buffer.length > 3 && buffer[0] == (byte) 0xFF
-				&& buffer[1] == (byte) 0xD8 && buffer[2] == (byte) 0xFF
-				&&
-				(buffer[3] == (byte) 0xE0
-				|| buffer[3] == (byte) 0xE1
-				|| buffer[3] == (byte) 0xDB)) {
-			type = "jpeg";
-		} else if (buffer.length > 7 && buffer[0] == (byte) 0x89
-				&& buffer[1] == (byte) 0x50 && buffer[2] == (byte) 0x4E
-				&& buffer[3] == (byte) 0x47 && buffer[4] == (byte) 0x0D
-				&& buffer[5] == (byte) 0x0A && buffer[6] == (byte) 0x1A
-				&& buffer[7] == (byte) 0x0A) {
-			type = "png";
-		} else {
-			type = unknown;
-		}
-
+		type = unknown;
 		size = buffer.length;
 		calculateDigest(buffer);
-		
+		Set<String> keys = signatures.keySet();
+		Iterator<String> iter = keys.iterator();
+		while (iter.hasNext()) {
+			String key = iter.next();
+			int offset = 0;
+			int colon = key.indexOf(':');
+			if (colon >= 0) {
+				String keypart = key.substring(0, colon);
+				String offpart = key.substring(colon + 1);
+				key = keypart;
+				offset = Integer.parseInt(offpart);
+			}
+			if (compareBuffer(buffer, offset, key)) {
+				type = signatures.get(key);
+				break;
+			}
+		}
+
 		try {
 			InputStream in = new ByteArrayInputStream(buffer);
 			BufferedImage image = ImageIO.read(in);
@@ -159,6 +144,25 @@ public class FileInfo {
 			}
 		} catch (NoSuchAlgorithmException e) {
 			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * @param buffer
+	 * @param offset
+	 * @param signature
+	 * @return
+	 */
+	private boolean compareBuffer(byte[] buffer, int offset, String signature) {
+		byte[] sig = javax.xml.bind.DatatypeConverter.parseHexBinary(signature);
+		if (buffer.length < offset + sig.length) {
+			return false;
+		}
+		for (int i = 0; i < sig.length; i++) {
+			if (buffer[offset + i] != sig[i]) {
+				return false;
+			}
 		}
 		return true;
 	}
