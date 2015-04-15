@@ -99,6 +99,75 @@ public class ComicScanner extends JApplet implements ActionListener {
 		pane.add(control, gbc);
 	}
 
+	/**
+	 * @param infile
+	 */
+	private void extractRar(File infile) {
+		byte[] buffer;
+		Archive rarFile = null;
+		List<FileHeader> headers = null;
+		try {
+			rarFile = new Archive(infile, null, false);
+			headers = rarFile.getFileHeaders();
+			Iterator<FileHeader> iter = headers.iterator();
+			while (headers != null && iter.hasNext()) {
+				FileHeader head = iter.next();
+				ByteArrayOutputStream os = new ByteArrayOutputStream();
+				rarFile.extractFile(head, os);
+				buffer = os.toByteArray();
+				FileInfo info = new FileInfo(buffer, FileInfo.file);
+				info.name = head.getFileNameString();
+				info.createdOn = head.getMTime().getTime();
+				info.folder = head.isDirectory();
+			}
+			rarFile.close();
+		} catch (RarException | IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void extractZip() {
+		byte[] buffer;
+		ZipFile zipFile = null;
+		Enumeration<?> entries;
+
+		try {
+			zipFile = new ZipFile(pathname);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		if (zipFile != null) {
+			entries = zipFile.entries();
+			while (entries.hasMoreElements()) {
+				ZipEntry entry = (ZipEntry) entries.nextElement();
+				long fileSize = entry.getSize();
+
+				try {
+					InputStream in = zipFile.getInputStream(entry);
+					buffer = readFromStream(in, fileSize);
+					FileInfo info = new FileInfo(buffer, FileInfo.file);
+					info.name = entry.getName();
+					info.createdOn = entry.getTime();
+					info.folder = entry.isDirectory();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		}
+		try {
+			zipFile.close();
+		} catch (IOException e1) {
+			// Don't bother
+		}
+	}
+
 	// Called when this applet is loaded into the browser.
 	@Override
 	public void init() {
@@ -248,63 +317,10 @@ public class ComicScanner extends JApplet implements ActionListener {
 		archInfo.createdOn = infile.lastModified();
 		switch (archInfo.type) {
 		case "rar":
-			Archive rarFile = null;
-			List<FileHeader> headers = null;
-			try {
-				rarFile = new Archive(infile, null, false);
-				headers = rarFile.getFileHeaders();
-				Iterator<FileHeader> iter = headers.iterator();
-				while (headers != null && iter.hasNext()) {
-					FileHeader head = iter.next();
-					ByteArrayOutputStream os = new ByteArrayOutputStream();
-					rarFile.extractFile(head, os);
-					buffer = os.toByteArray();
-					FileInfo info = new FileInfo(buffer, FileInfo.file);
-					info.name = head.getFileNameString();
-					info.createdOn = head.getMTime().getTime();
-					info.folder = head.isDirectory();
-				}
-				rarFile.close();
-			} catch (RarException | IOException e) {
-				// TODO Auto-generated catch block
-				System.out.println(e.getMessage());
-				e.printStackTrace();
-			}
+			extractRar(infile);
 			break;
 		case "zip":
-			ZipFile zipFile = null;
-			Enumeration<?> entries;
-
-			try {
-				zipFile = new ZipFile(pathname);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			if (zipFile != null) {
-				entries = zipFile.entries();
-				while (entries.hasMoreElements()) {
-					ZipEntry entry = (ZipEntry) entries.nextElement();
-					long fileSize = entry.getSize();
-
-					try {
-						InputStream in = zipFile.getInputStream(entry);
-						buffer = readFromStream(in, fileSize);
-						FileInfo info = new FileInfo(buffer, FileInfo.file);
-						info.name = entry.getName();
-						info.createdOn = entry.getTime();
-						info.folder = entry.isDirectory();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				}
-			}
-			try {
-				zipFile.close();
-			} catch (IOException e1) {
-				// Don't bother
-			}
+			extractZip();
 			break;
 		}
 	}
