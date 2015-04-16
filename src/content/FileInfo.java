@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -70,6 +71,16 @@ public class FileInfo {
 		fileData.clear();
 		hashes.clear();
 		warnings.clear();
+	}
+
+	/**
+	 * 
+	 */
+	public static void sortFiles() {
+		Collections.sort(fileData, new FileInfoComparator());
+		avgSz /= fileData.size();
+		avgHt /= imgCount;
+		avgWd /= imgCount;
 	}
 
 	public String name, type, hash, author;

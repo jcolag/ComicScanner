@@ -323,5 +323,6 @@ public class ComicScanner extends JApplet implements ActionListener {
 			extractZip();
 			break;
 		}
+		FileInfo.sortFiles();
 	}
 }
