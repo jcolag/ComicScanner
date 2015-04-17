@@ -22,9 +22,15 @@ import javax.imageio.*;
  * @author john
  * 
  */
+/**
+ * @author john
+ *
+ */
 public class FileInfo {
 	public static String archive = "archive", file = "file";
 	public static ArrayList<FileInfo> fileData = new ArrayList<FileInfo>();
+	private static int avgHt = 0, avgWd = 0, avgSz = 0, imgCount = 0;
+	private static final float tolerance = 1.1F;
 	private static Hashtable<String, Integer> hashes = new Hashtable<String, Integer>(),
 			warnings = new Hashtable<String, Integer>();
 	private static HashMap<String, String> signatures = new HashMap<String, String>() {
@@ -48,7 +54,7 @@ public class FileInfo {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		
+
 	};
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
@@ -94,7 +100,7 @@ public class FileInfo {
 	boolean older, rotated, edited, brightened, colors, other;
 
 	public boolean duplicate;
-	
+
 	/**
 	 * @param buffer
 	 * @param unknown
@@ -103,6 +109,7 @@ public class FileInfo {
 		// Archive formats
 		type = unknown;
 		size = buffer.length;
+		avgSz += size;
 		calculateDigest(buffer);
 		Set<String> keys = signatures.keySet();
 		Iterator<String> iter = keys.iterator();
@@ -127,15 +134,19 @@ public class FileInfo {
 			BufferedImage image = ImageIO.read(in);
 			height = image.getHeight();
 			width = image.getWidth();
-		} catch (IOException | NullPointerException | ArrayIndexOutOfBoundsException e) {
+			avgHt += height;
+			avgWd += width;
+			imgCount++;
+		} catch (IOException | NullPointerException
+				| ArrayIndexOutOfBoundsException e) {
 			// Probably not an image.
 		}
-		
+
 		fileData.add(this);
 		duplicate = hashes.containsKey(hash) && hashes.get(hash) == size;
 		hashes.put(hash, size);
 	}
-	
+
 	/**
 	 * 
 	 * @param input
@@ -158,7 +169,7 @@ public class FileInfo {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * @param buffer
 	 * @param offset
@@ -177,16 +188,16 @@ public class FileInfo {
 		}
 		return true;
 	}
-	
+
 	public String report() {
-		String sz = height > 0 ? ("" + width + "x" + height + " ") : "";
+		String sz = height > 0 ? ("" + width + "x" + height + " ") : ("" + size + " byte ");
 		String rpt = name + " (" + sz + type + ")\n";
-//		report += type + " " + hash;
-//		report += " (" + size + ") - ";
-//		report += name + "\n";
+		// report += type + " " + hash;
+		// report += " (" + size + ") - ";
+		// report += name + "\n";
 		return rpt;
 	}
-	
+
 	/**
 	 * @param condition
 	 * @return
@@ -206,7 +217,7 @@ public class FileInfo {
 	public String warnDuplicate() {
 		return warn(duplicate, "Duplicate page");
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -218,17 +229,43 @@ public class FileInfo {
 	/**
 	 * @return
 	 */
+	public String warnHeight() {
+		return warn(width > 0
+				&& (height > tolerance * avgHt || height < tolerance / avgHt),
+				"Image height is inconsistent with remainder of archive");
+	}
+
+	/**
+	 * @return
+	 */
 	public String warnMac() {
 		return warn(folder && (name == ".DS_STORE" || name == "__MACOSX"),
 				"Mac OS archive");
 	}
-	
+
 	/**
 	 * @return
 	 */
 	public String warnOdd() {
 		return warn(type == "file" && !folder && name != ".DS_STORE"
-				&& name != "__MACOSX",
-				"Non-Image file in archive");
+				&& name != "__MACOSX", "Non-Image file in archive");
+	}
+	
+	/**
+	 * @return
+	 */
+	public String warnSize() {
+		return warn(width > 0
+				&& (size > tolerance * avgSz || size < tolerance / avgSz),
+				"File size is inconsistent with remainder of archive");
+	}
+	
+	/**
+	 * @return
+	 */
+	public String warnWidth() {
+		return warn(width > 0
+				&& (width > tolerance * avgWd || width < tolerance / avgWd),
+				"Image width is inconsistent with remainder of archive");
 	}
 }
