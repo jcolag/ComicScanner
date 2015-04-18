@@ -138,33 +138,21 @@ public class ComicScanner extends JApplet implements ActionListener {
 
 		try {
 			zipFile = new ZipFile(pathname);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		if (zipFile != null) {
 			entries = zipFile.entries();
 			while (entries.hasMoreElements()) {
 				ZipEntry entry = (ZipEntry) entries.nextElement();
 				long fileSize = entry.getSize();
-
-				try {
-					InputStream in = zipFile.getInputStream(entry);
-					buffer = readFromStream(in, fileSize);
-					FileInfo info = new FileInfo(buffer, FileInfo.file);
-					info.name = entry.getName();
-					info.createdOn = entry.getTime();
-					info.folder = entry.isDirectory();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				InputStream in = zipFile.getInputStream(entry);
+				buffer = readFromStream(in, fileSize);
+				FileInfo info = new FileInfo(buffer, FileInfo.file);
+				info.name = entry.getName();
+				info.createdOn = entry.getTime();
+				info.folder = entry.isDirectory();
 			}
-		}
-		try {
 			zipFile.close();
 		} catch (IOException e1) {
-			// Don't bother
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 
