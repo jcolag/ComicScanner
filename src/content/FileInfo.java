@@ -85,6 +85,9 @@ public class FileInfo {
 	public static void sortFiles() {
 		Collections.sort(fileData, new FileInfoComparator());
 		avgSz /= fileData.size();
+		if (imgCount == 0) {
+			imgCount = 1;
+		}
 		avgHt /= imgCount;
 		avgWd /= imgCount;
 	}
