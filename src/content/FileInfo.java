@@ -90,12 +90,23 @@ public class FileInfo {
 		}
 		avgHt /= imgCount;
 		avgWd /= imgCount;
+		ArrayList<String> namesPersonSort = new ArrayList<String>();
+		Iterator<FileInfo> iter = fileData.iterator();
+		while (iter.hasNext()) {
+			namesPersonSort.add(iter.next().name);
+		}
+		Collections.sort(namesPersonSort, new NaturalOrderComparator());
+		iter = fileData.iterator();
+		for (int i = 0; i < fileData.size(); i++) {
+			FileInfo file = fileData.get(i);
+			file.sortOffset = namesPersonSort.indexOf(file.name) - i;
+		}
 	}
 
 	public String name, type, hash, author;
 	byte[] digest;
 	int parentId;
-	public int size, height = -1, width = -1;
+	public int size, height = -1, width = -1, sortOffset = 0;
 	ArrayList<Integer> derivedFrom;
 	public long createdOn;
 	public boolean folder = false;
@@ -252,6 +263,11 @@ public class FileInfo {
 	public String warnOdd() {
 		return warn(type == "file" && !folder && name != ".DS_STORE"
 				&& name != "__MACOSX", "Non-Image file in archive");
+	}
+	
+	public String warnOrder() {
+		return warn(sortOffset != 0 && width > 0,
+				"File name does not match natural sort order");
 	}
 	
 	/**

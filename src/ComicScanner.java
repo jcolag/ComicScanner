@@ -234,6 +234,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 				doc.insertString(doc.getLength(), fi.warnWidth(), warning);
 				doc.insertString(doc.getLength(), fi.warnHeight(), warning);
 				doc.insertString(doc.getLength(), fi.warnSize(), warning);
+				doc.insertString(doc.getLength(), fi.warnOrder(), warning);
 				doc.insertString(doc.getLength(), fi.report(), normal);
 			} catch (BadLocationException e1) {
 				// Ignore and continue
