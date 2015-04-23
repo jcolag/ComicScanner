@@ -1,12 +1,34 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.zip.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
@@ -14,11 +36,10 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
-import de.innosystec.unrar.*;
-import de.innosystec.unrar.exception.RarException;
-import de.innosystec.unrar.rarfile.*;
-
 import content.FileInfo;
+import de.innosystec.unrar.Archive;
+import de.innosystec.unrar.exception.RarException;
+import de.innosystec.unrar.rarfile.FileHeader;
 
 /**
  * 
