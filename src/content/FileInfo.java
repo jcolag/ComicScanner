@@ -14,9 +14,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Set;
 
 import javax.imageio.*;
+
+import borrowed.diff_match_patch;
+import borrowed.diff_match_patch.Diff;
 
 /**
  * @author john
@@ -96,10 +100,87 @@ public class FileInfo {
 			namesPersonSort.add(iter.next().name);
 		}
 		Collections.sort(namesPersonSort, new NaturalOrderComparator());
-		iter = fileData.iterator();
 		for (int i = 0; i < fileData.size(); i++) {
 			FileInfo file = fileData.get(i);
 			file.sortOffset = namesPersonSort.indexOf(file.name) - i;
+		}
+		assignPageNumbers();
+	}
+
+	private static void assignPageNumbers() {
+		/*
+		 * Find the common string between image file names.
+		 * Starts with the middle file in hopes of avoiding alternate
+		 * covers and scanner tag pages.
+		 */
+		diff_match_patch dmp = new diff_match_patch();
+		String common = fileData.get(fileData.size() / 2).name;
+		for (int i = 0; i < fileData.size(); i++) {
+			if (fileData.get(i).width <= 0) {
+				continue;
+			}
+			String name = fileData.get(i).name;
+			LinkedList<Diff> diffs = dmp.diff_main(common, name);
+			Iterator<Diff> df = diffs.iterator();
+			String test = "";
+			/*
+			 * Collect similarities between names
+			 */
+			while (df.hasNext()) {
+				Diff d = df.next();
+				if (d.operation != diff_match_patch.Operation.EQUAL) {
+					continue;
+				}
+				test += d.text + "*";
+			}
+			/*
+			 *  Early on, look for approximate similarities, but then
+			 *  shift to very minor differences, for example, only
+			 *  changing page numbers
+			 */
+			if ((i < 3 && test.length() - diffs.size() > name.length() * 2 / 3)
+					|| Math.abs(common.length() - test.length()) < 3) {
+				common = test;
+			}
+		}
+		/*
+		 * Find differences between individual image file names and the
+		 * common naming convention
+		 */
+		int prev = 0;
+		for (int i = 0; i < fileData.size(); i++) {
+			if (fileData.get(i).width <= 0) {
+				continue;
+			}
+			LinkedList<Diff> diffs = dmp.diff_main(common, fileData.get(i).name);
+			Iterator<Diff> df = diffs.iterator();
+			String test = "";
+			/*
+			 * Collect insertions that begin with a digit, which are
+			 * hopefully only page numbers
+			 */
+			while (df.hasNext()) {
+				Diff d = df.next();
+				if (d.operation != diff_match_patch.Operation.INSERT
+						|| !Character.isDigit(d.text.charAt(0))) {
+					continue;
+				}
+				test += d.text + "*";
+			}
+			if (test.length() > 1) {
+				test = test.substring(0, test.length() - 1);
+			}
+			try {
+				int page = Integer.parseInt(test);
+				if (page > prev + 1) {
+					System.out.println("Missing page!");
+				} else if (page == prev) {
+					System.out.println("Duplicate page number!");
+				}
+				prev = page;
+			} finally {
+			}
+			System.out.println(test);
 		}
 	}
 
