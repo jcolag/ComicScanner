@@ -172,13 +172,14 @@ public class FileInfo {
 			}
 			try {
 				int page = Integer.parseInt(test);
+				fileData.get(i).pageNumber = page;
 				if (page > prev + 1) {
 					System.out.println("Missing page!");
 				} else if (page == prev) {
 					System.out.println("Duplicate page number!");
 				}
 				prev = page;
-			} finally {
+			} catch (NumberFormatException e) {
 			}
 			System.out.println(test);
 		}
@@ -188,6 +189,7 @@ public class FileInfo {
 	byte[] digest;
 	int parentId;
 	public int size, height = -1, width = -1, sortOffset = 0;
+	public int size, height = -1, width = -1, sortOffset = 0, pageNumber = -1;
 	ArrayList<Integer> derivedFrom;
 	public long createdOn;
 	public boolean folder = false;
