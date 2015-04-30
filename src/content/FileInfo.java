@@ -185,7 +185,7 @@ public class FileInfo {
 		}
 	}
 
-	public String name, type, hash, author;
+	public String name, type, hash, author, imageError;
 	byte[] digest;
 	int parentId;
 	public int size, height = -1, width = -1, sortOffset = 0;
@@ -237,6 +237,7 @@ public class FileInfo {
 		} catch (IOException | NullPointerException
 				| ArrayIndexOutOfBoundsException e) {
 			// Probably not an image.
+			imageError = e.getMessage();
 		}
 
 		fileData.add(this);
