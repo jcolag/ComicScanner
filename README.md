@@ -75,7 +75,9 @@ ComicScanner currently uses the following libraries.
 
  - [The GNU Crypto](https://www.gnu.org/software/gnu-crypto/) project, used by java-unrar to handle encrypted archives if necessary, available under the [GNU General Public License](https://www.gnu.org/copyleft/gpl.html) with the "library exception."
 
- - [Apache Commons Logging](https://commons.apache.org/proper/commons-logging/) is used by the GNU Crypto project, and is available under the Apache License 2.0.
+ - The relevant parts of [Apache HttpComponents](https://hc.apache.org/), specifically the HTTP Client and HTTP Core libraries, and is available under the Apache License 2.0.
+
+ - [Apache Commons Logging](https://commons.apache.org/proper/commons-logging/) is used by the GNU Crypto project and HttpComponents, and is available under the Apache License 2.0.
 
 The code also includes Pierre-Luc Paour's Natural Order Comparator to test the natural sorting of the file names, available under a BSD-like license.
 
