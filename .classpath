@@ -5,5 +5,7 @@
 	<classpathentry kind="lib" path="/home/john/workspace/java-unrar-decryption-supported-20120903.jar"/>
 	<classpathentry kind="lib" path="/home/john/workspace/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="/home/john/workspace/gnu-crypto.jar"/>
+	<classpathentry kind="lib" path="/home/john/workspace/httpcomponents-client-4.4.1/lib/httpclient-4.4.1.jar"/>
+	<classpathentry kind="lib" path="/home/john/workspace/httpcomponents-client-4.4.1/lib/httpcore-4.4.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
