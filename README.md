@@ -67,6 +67,8 @@ The applet:
 
  - Report on the files (`ComicScanner::pageReport()`).  Iterate through the files, detecting any conditions worth warning the user about.  __Note__:  This code especially needs work, as each possible warning currently requires its own section of custom code in multiple places to support it.
 
+ - ___In Progress:___  Check if the files have been seen before and post new results (`RestClient`).
+
 ####Libraries
 
 ComicScanner currently uses the following libraries.
@@ -79,7 +81,7 @@ ComicScanner currently uses the following libraries.
 
  - [Apache Commons Logging](https://commons.apache.org/proper/commons-logging/) is used by the GNU Crypto project and HttpComponents, and is available under the Apache License 2.0.
 
-The code also includes Pierre-Luc Paour's Natural Order Comparator to test the natural sorting of the file names, available under a BSD-like license.
+The code also includes Pierre-Luc Paour's [Natural Order Comparator](http://www.java2s.com/Code/Java/Collections-Data-Structure/NaturalOrderComparator.htm) to test the natural sorting of the file names, available under a BSD-like license.
 
 As mentioned, it will be worth exploring [Apache Commons Compress](https://commons.apache.org/proper/commons-compress/).  It does not appear to support the RAR format and ZIP-handling is inbuilt into the Java standard library, but may be an easy win if it reduces the number of maintained code paths, if any of those archive types are genuinely used.
 
