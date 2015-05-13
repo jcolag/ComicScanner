@@ -78,4 +78,32 @@ public class RestClient {
 		}
 		return resp;
 	}
+
+	public String postToUrl(String urlSubmit, List<NameValuePair> nvps)
+			throws java.net.ConnectException {
+		String resp = "";
+		try {
+			HttpPost httpost = new HttpPost(base + urlSubmit);
+			httpost.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
+			HttpResponse response = httpclient.execute(httpost);
+			HttpEntity entity = response.getEntity();
+			cookies = httpclient.getCookieStore().getCookies();
+			if (entity != null) {
+				Header enc = entity.getContentEncoding();
+				String encoding = "UTF-8";
+				if (enc != null) {
+					encoding = enc.getValue();
+				}
+				resp = extractContentString(entity, encoding);
+				entity.consumeContent();
+			}
+		} catch (java.net.ConnectException e) {
+			throw e;
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return resp;
+	}
 }
