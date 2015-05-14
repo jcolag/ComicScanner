@@ -32,10 +32,10 @@ public class RestClient {
 	 * @return
 	 * @throws IOException
 	 */
-	private static String extractContentString(HttpEntity entity, String encoding)
-			throws IOException {
+	private static String extractContentString(HttpEntity entity,
+			String encoding) throws IOException {
 		long length = entity.getContentLength();
-		byte b[] = new byte[(int)length];
+		byte b[] = new byte[(int) length];
 		entity.getContent().read(b);
 		return new String(b, Charset.forName(encoding));
 	}
