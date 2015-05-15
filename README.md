@@ -67,7 +67,7 @@ The applet:
 
  - Report on the files (`ComicScanner::pageReport()`).  Iterate through the files, detecting any conditions worth warning the user about.  __Note__:  This code especially needs work, as each possible warning currently requires its own section of custom code in multiple places to support it.
 
- - ___In Progress:___  Check if the files have been seen before and post new results (`RestClient`).
+ - ___In Progress:___  Check if the files have been seen before and `POST` new results (`RestClient`).
 
 ####Libraries
 
