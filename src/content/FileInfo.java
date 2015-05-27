@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -15,9 +16,15 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import javax.imageio.*;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import com.google.gson.*;
 
 import borrowed.diff_match_patch;
 import borrowed.diff_match_patch.Diff;
@@ -31,10 +38,11 @@ import borrowed.diff_match_patch.Diff;
  *
  */
 public class FileInfo {
-	public static String archive = "archive", file = "file";
+	public static String archive = "archive", file = "file", apikey = "";
 	public static ArrayList<FileInfo> fileData = new ArrayList<FileInfo>();
 	private static int avgHt = 0, avgWd = 0, avgSz = 0, imgCount = 0;
 	private static final float tolerance = 1.1F;
+	private static Gson gson = new Gson();
 	private static Hashtable<String, Integer> hashes = new Hashtable<String, Integer>(),
 			warnings = new Hashtable<String, Integer>();
 	private static HashMap<String, String> signatures = new HashMap<String, String>() {
@@ -186,6 +194,7 @@ public class FileInfo {
 	}
 
 	public String name, type, hash, author, imageError;
+	public String name, type, hash, author, imageError = "";
 	byte[] digest;
 	int parentId;
 	public int size, height = -1, width = -1, sortOffset = 0, pageNumber = -1;
@@ -242,6 +251,34 @@ public class FileInfo {
 		fileData.add(this);
 		duplicate = hashes.containsKey(hash) && hashes.get(hash) == size;
 		hashes.put(hash, size);
+	}
+	
+	public List<NameValuePair> prepareSubmission() {
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("name", name));
+		params.add(new BasicNameValuePair("file_type", type));
+		params.add(new BasicNameValuePair("digest", hash));
+		params.add(new BasicNameValuePair("imageError", imageError));
+		params.add(new BasicNameValuePair("modified", ""));
+		params.add(new BasicNameValuePair("size", new Integer(size).toString()));
+		params.add(new BasicNameValuePair("height", new Integer(height).toString()));
+		params.add(new BasicNameValuePair("width", new Integer(width).toString()));
+		params.add(new BasicNameValuePair("page", new Integer(pageNumber).toString()));
+		params.add(new BasicNameValuePair("folder", new Boolean(folder).toString()));
+		params.add(new BasicNameValuePair("apikey", apikey));
+		return params;
+	}
+	
+	public void sendSubmission() {
+		List<NameValuePair> params = prepareSubmission();
+		RestClient rc = new RestClient("http://localhost:3000/");
+		try {
+			String result = rc.postToUrl("/submissions.json", params);
+			System.out.println(result);
+		} catch (ConnectException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
