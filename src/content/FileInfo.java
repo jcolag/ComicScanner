@@ -28,6 +28,7 @@ import com.google.gson.*;
 
 import borrowed.diff_match_patch;
 import borrowed.diff_match_patch.Diff;
+import content.DocumentRecord;
 
 /**
  * @author john
@@ -193,7 +194,6 @@ public class FileInfo {
 		}
 	}
 
-	public String name, type, hash, author, imageError;
 	public String name, type, hash, author, imageError = "";
 	byte[] digest;
 	int parentId;
@@ -206,6 +206,9 @@ public class FileInfo {
 
 	public boolean duplicate;
 
+	private DocumentRecord officialDocument;
+	private RestClient rest;
+
 	/**
 	 * @param buffer
 	 * @param unknown
@@ -216,6 +219,8 @@ public class FileInfo {
 		size = buffer.length;
 		avgSz += size;
 		calculateDigest(buffer);
+		rest = new RestClient("http://localhost:3000/");
+		officialDocument = getDocumentWithDigest(hash);
 		Set<String> keys = signatures.keySet();
 		Iterator<String> iter = keys.iterator();
 		while (iter.hasNext()) {
@@ -251,6 +256,24 @@ public class FileInfo {
 		fileData.add(this);
 		duplicate = hashes.containsKey(hash) && hashes.get(hash) == size;
 		hashes.put(hash, size);
+	}
+
+
+	/**
+	 * @param digest
+	 * @return
+	 */
+	private DocumentRecord getDocumentWithDigest(String digest) {
+		DocumentRecord doc = null;
+		try {
+			String aliases = rest.getFromUrl("/documents/" + digest + ".json");
+			doc = gson.fromJson(aliases, DocumentRecord.class);
+		} catch (ConnectException e1) {
+			e1.printStackTrace();
+		} catch (com.google.gson.JsonSyntaxException e1) {
+			System.out.println("Malformed response");
+		}
+		return doc;
 	}
 	
 	public List<NameValuePair> prepareSubmission() {
