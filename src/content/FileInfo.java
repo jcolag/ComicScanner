@@ -294,9 +294,8 @@ public class FileInfo {
 	
 	public void sendSubmission() {
 		List<NameValuePair> params = prepareSubmission();
-		RestClient rc = new RestClient("http://localhost:3000/");
 		try {
-			String result = rc.postToUrl("/submissions.json", params);
+			String result = rest.postToUrl("/submissions.json", params);
 			System.out.println(result);
 		} catch (ConnectException e) {
 			// TODO Auto-generated catch block
