@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +38,7 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
 import content.FileInfo;
+import content.RestClient;
 import de.innosystec.unrar.Archive;
 import de.innosystec.unrar.exception.RarException;
 import de.innosystec.unrar.rarfile.FileHeader;
@@ -69,7 +71,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 	JTextField textNumber, textUsername;
 	JPasswordField textPassword;
 	JFileChooser chooseComic;
-	JButton buttonChoose, buttonCheck, buttonSend;
+	JButton buttonChoose, buttonCheck, buttonSend, buttonXmit;
 	JTextPane textReport;
 	Container cPane;
 
@@ -95,6 +97,12 @@ public class ComicScanner extends JApplet implements ActionListener {
 			unpackArchive();
 		} else if (e.getSource() == buttonSend) {
 			pageReport();
+		} else if (e.getSource() == buttonXmit) {
+			Iterator<FileInfo> iter = FileInfo.fileData.iterator();
+			while (FileInfo.fileData != null && iter.hasNext()) {
+				FileInfo fi = iter.next();
+				fi.sendSubmission();
+			}
 		}
 
 	}
@@ -203,6 +211,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 		buttonChoose = new JButton("Choose Comic...");
 		buttonCheck = new JButton("Analyze");
 		buttonSend = new JButton("Report");
+		buttonXmit = new JButton("Transmit");
 
 //		listModel.addElement("Ace");
 //		listModel.addElement("Ajax-Farrell");
@@ -226,12 +235,14 @@ public class ComicScanner extends JApplet implements ActionListener {
 //		addControlToContainer(cPane, 1, 1, textPassword, false, 0);
 		addControlToContainer(cPane, 0, 0, buttonChoose, false, 0);
 		addControlToContainer(cPane, 0, 1, buttonCheck, false, 0);
+		addControlToContainer(cPane, 1, 0, buttonXmit, false, 0);
 		addControlToContainer(cPane, 1, 1, buttonSend, false, 0);
 		addControlToContainer(cPane, 0, 2, scrollReport, true, 1);
 
 		buttonChoose.addActionListener(this);
 		buttonCheck.addActionListener(this);
 		buttonSend.addActionListener(this);
+		buttonXmit.addActionListener(this);
 	}
 
 	/**
