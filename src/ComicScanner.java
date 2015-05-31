@@ -57,7 +57,7 @@ import de.innosystec.unrar.rarfile.FileHeader;
  */
 /**
  * @author john
- *
+ * 
  */
 public class ComicScanner extends JApplet implements ActionListener {
 	/**
@@ -91,20 +91,39 @@ public class ComicScanner extends JApplet implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		Thread queryThread = null;
 		if (e.getSource() == buttonChoose) {
-			retrieveFile();
+			queryThread = new Thread() {
+				public void run() {
+					retrieveFile();
+				}
+			};
 		} else if (e.getSource() == buttonCheck) {
-			unpackArchive();
+			queryThread = new Thread() {
+				public void run() {
+					unpackArchive();
+				}
+			};
 		} else if (e.getSource() == buttonSend) {
-			pageReport();
+			queryThread = new Thread() {
+				public void run() {
+					pageReport();
+				}
+			};
 		} else if (e.getSource() == buttonXmit) {
-			Iterator<FileInfo> iter = FileInfo.fileData.iterator();
-			while (FileInfo.fileData != null && iter.hasNext()) {
-				FileInfo fi = iter.next();
-				fi.sendSubmission();
-			}
+			queryThread = new Thread() {
+				public void run() {
+					Iterator<FileInfo> iter = FileInfo.fileData.iterator();
+					while (FileInfo.fileData != null && iter.hasNext()) {
+						FileInfo fi = iter.next();
+						fi.sendSubmission();
+					}
+				}
+			};
 		}
-
+		if (queryThread != null) {
+			queryThread.start();
+		}
 	}
 
 	/**
