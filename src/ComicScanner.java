@@ -30,8 +30,10 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.JTextComponent;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
@@ -124,6 +126,18 @@ public class ComicScanner extends JApplet implements ActionListener {
 		if (queryThread != null) {
 			queryThread.start();
 		}
+	}
+	
+	/**
+	 * @param control
+	 * @param info
+	 */
+	public void updateProgress(final JTextComponent control, final String info) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				control.setText(info);
+			}
+		});
 	}
 
 	/**
