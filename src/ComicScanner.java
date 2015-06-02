@@ -70,7 +70,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 	JPanel panelMaster;
 	JList<String> listPublisher, listSeries;
 	JScrollPane scrollPublisher, scrollSeries, scrollReport;
-	JTextField textNumber, textUsername;
+	JTextField textNumber, textUsername, textChoose, textCheck, textSend, textXmit;
 	JPasswordField textPassword;
 	JFileChooser chooseComic;
 	JButton buttonChoose, buttonCheck, buttonSend, buttonXmit;
@@ -245,6 +245,15 @@ public class ComicScanner extends JApplet implements ActionListener {
 		buttonCheck = new JButton("Analyze");
 		buttonSend = new JButton("Report");
 		buttonXmit = new JButton("Transmit");
+		
+		textChoose = new JTextField(128);
+		textCheck = new JTextField(128);
+		textSend = new JTextField(128);
+		textXmit = new JTextField(128);
+		textChoose.setEditable(false);
+		textCheck.setEditable(false);
+		textSend.setEditable(false);
+		textXmit.setEditable(false);
 
 //		listModel.addElement("Ace");
 //		listModel.addElement("Ajax-Farrell");
@@ -268,9 +277,13 @@ public class ComicScanner extends JApplet implements ActionListener {
 //		addControlToContainer(cPane, 1, 1, textPassword, false, 0);
 		addControlToContainer(cPane, 0, 0, buttonChoose, false, 0);
 		addControlToContainer(cPane, 0, 1, buttonCheck, false, 0);
-		addControlToContainer(cPane, 1, 0, buttonXmit, false, 0);
-		addControlToContainer(cPane, 1, 1, buttonSend, false, 0);
-		addControlToContainer(cPane, 0, 2, scrollReport, true, 1);
+		addControlToContainer(cPane, 0, 2, buttonSend, false, 0);
+		addControlToContainer(cPane, 0, 3, buttonXmit, false, 0);
+		addControlToContainer(cPane, 1, 0, textChoose, false, 0);
+		addControlToContainer(cPane, 1, 1, textCheck, false, 0);
+		addControlToContainer(cPane, 1, 2, textSend, false, 0);
+		addControlToContainer(cPane, 1, 3, textXmit, false, 0);
+		addControlToContainer(cPane, 0, 4, scrollReport, true, 1);
 
 		buttonChoose.addActionListener(this);
 		buttonCheck.addActionListener(this);
