@@ -12,7 +12,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ConnectException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -40,23 +39,10 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
 import content.FileInfo;
-import content.RestClient;
 import de.innosystec.unrar.Archive;
 import de.innosystec.unrar.exception.RarException;
 import de.innosystec.unrar.rarfile.FileHeader;
 
-/**
- * 
- */
-
-/**
- * @author john
- * 
- */
-/**
- * @author john
- *
- */
 /**
  * @author john
  * 
