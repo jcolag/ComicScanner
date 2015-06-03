@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.swing.Box;
 import javax.swing.DefaultListModel;
 import javax.swing.JApplet;
 import javax.swing.JButton;
@@ -270,6 +272,8 @@ public class ComicScanner extends JApplet implements ActionListener {
 		addControlToContainer(cPane, 1, 2, textSend, false, 0);
 		addControlToContainer(cPane, 1, 3, textXmit, false, 0);
 		addControlToContainer(cPane, 0, 4, scrollReport, true, 1);
+		Component strut = Box.createHorizontalStrut(125);
+		addControlToContainer(cPane, 1, 5, (JComponent) strut, false, 0);
 
 		buttonChoose.addActionListener(this);
 		buttonCheck.addActionListener(this);
