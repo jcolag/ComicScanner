@@ -103,11 +103,17 @@ public class ComicScanner extends JApplet implements ActionListener {
 		} else if (e.getSource() == buttonXmit) {
 			queryThread = new Thread() {
 				public void run() {
+					updateProgress(false);
+					int files = FileInfo.fileData.size();
+					int count = 0;
 					Iterator<FileInfo> iter = FileInfo.fileData.iterator();
 					while (FileInfo.fileData != null && iter.hasNext()) {
 						FileInfo fi = iter.next();
 						fi.sendSubmission();
+						updateProgress(textXmit, "" + count + " files of " + files + ".");
+						count += 1;
 					}
+					updateProgress(true);
 				}
 			};
 		}
@@ -124,6 +130,56 @@ public class ComicScanner extends JApplet implements ActionListener {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				control.setText(info);
+			}
+		});
+	}
+	
+	/**
+	 * @param active
+	 */
+	public void updateProgress(final boolean active) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				buttonChoose.setEnabled(active);
+				buttonCheck.setEnabled(active);
+				buttonSend.setEnabled(active);
+				buttonXmit.setEnabled(active);
+			}
+		});
+	}
+	
+	/**
+	 * @param info
+	 * @param reset
+	 */
+	public void updateProgress(final String info, final TextFormat fmt, final boolean reset) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				if (reset) {
+					textReport.setText("");
+					return;
+				}
+				StyledDocument doc = textReport.getStyledDocument();
+				Style normal = StyleContext.getDefaultStyleContext().getStyle(
+						StyleContext.DEFAULT_STYLE);
+				Style regular = doc.addStyle("regular", normal);
+				Style warning = doc.addStyle("highlight", regular);
+				Style style = regular;
+				switch (fmt) {
+				case Warning:
+					style = warning;
+					break;
+				case Normal:
+					break;
+				default:
+					break;
+				}
+				StyleConstants.setForeground(warning, Color.orange);
+				StyleConstants.setBold(warning, true);
+				try {
+					doc.insertString(doc.getLength(), info, style);
+				} catch (BadLocationException e) {
+				}
 			}
 		});
 	}
@@ -159,12 +215,17 @@ public class ComicScanner extends JApplet implements ActionListener {
 		try {
 			rarFile = new Archive(infile, null, false);
 			headers = rarFile.getFileHeaders();
+			int files = headers.size();
+			int count = 0;
 			Iterator<FileHeader> iter = headers.iterator();
 			while (headers != null && iter.hasNext()) {
 				FileHeader head = iter.next();
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				rarFile.extractFile(head, os);
 				buffer = os.toByteArray();
+				count += 1;
+				String status = "" + count + " archived files of " + files + ".";
+				updateProgress(textCheck, status);
 				FileInfo info = new FileInfo(buffer, FileInfo.file);
 				info.name = head.getFileNameString();
 				info.createdOn = head.getMTime().getTime();
@@ -189,11 +250,16 @@ public class ComicScanner extends JApplet implements ActionListener {
 		try {
 			zipFile = new ZipFile(pathname);
 			entries = zipFile.entries();
+			int count = 0;
+			int files = zipFile.size();
 			while (entries.hasMoreElements()) {
 				ZipEntry entry = (ZipEntry) entries.nextElement();
 				long fileSize = entry.getSize();
 				InputStream in = zipFile.getInputStream(entry);
 				buffer = readFromStream(in, fileSize);
+				count += 1;
+				String status = "" + count + " archived files of " + files + ".";
+				updateProgress(textCheck, status);
 				FileInfo info = new FileInfo(buffer, FileInfo.file);
 				info.name = entry.getName();
 				info.createdOn = entry.getTime();
@@ -285,37 +351,27 @@ public class ComicScanner extends JApplet implements ActionListener {
 	 * 
 	 */
 	private void pageReport() {
-		StyledDocument doc = textReport.getStyledDocument();
-		Style normal = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
-		Style regular = doc.addStyle("regular", normal);
-		Style warning = doc.addStyle("highlight", regular);
-		StyleConstants.setForeground(warning, Color.orange);
-		StyleConstants.setBold(warning, true);
-
-		for (int i = 0; i < FileInfo.fileData.size(); i++) {
+		updateProgress(false);
+		updateProgress(null, TextFormat.Normal, true);
+		int pages = FileInfo.fileData.size();
+		for (int i = 0; i < pages; i++) {
 			FileInfo fi = FileInfo.fileData.get(i);
-			try {
-				doc.insertString(doc.getLength(), fi.warnDuplicate(), warning);
-				doc.insertString(doc.getLength(), fi.warnMac(), warning);
-				doc.insertString(doc.getLength(), fi.warnOdd(), warning);
-				doc.insertString(doc.getLength(), fi.warnFolder(), warning);
-				doc.insertString(doc.getLength(), fi.warnWidth(), warning);
-				doc.insertString(doc.getLength(), fi.warnHeight(), warning);
-				doc.insertString(doc.getLength(), fi.warnSize(), warning);
-				doc.insertString(doc.getLength(), fi.warnOrder(), warning);
-				doc.insertString(doc.getLength(), fi.report(), normal);
-			} catch (BadLocationException e1) {
-				// Ignore and continue
-			}
+			updateProgress(textSend, "" + (i + 1) + " files of " + pages + ".");
+			updateProgress(fi.warnDuplicate(), TextFormat.Warning, false);
+			updateProgress(fi.warnMac(), TextFormat.Warning, false);
+			updateProgress(fi.warnOdd(), TextFormat.Warning, false);
+			updateProgress(fi.warnFolder(), TextFormat.Warning, false);
+			updateProgress(fi.warnWidth(), TextFormat.Warning, false);
+			updateProgress(fi.warnHeight(), TextFormat.Warning, false);
+			updateProgress(fi.warnSize(), TextFormat.Warning, false);
+			updateProgress(fi.warnOrder(), TextFormat.Warning, false);
+			updateProgress(fi.report(), TextFormat.Normal, false);
 		}
-		try {
-			int warnings = FileInfo.nWarnings();
-			doc.insertString(doc.getLength(), "\n" + warnings
-					+ " issue" + (warnings == 1 ? "" : "s")
-					+ " found.", normal);
-		} catch (BadLocationException e1) {
-			// Ignore and continue
-		}
+		int warnings = FileInfo.nWarnings();
+		String summary = "\n" + warnings + " issue"
+				+ (warnings == 1 ? "" : "s") + " found.";
+		updateProgress(summary, TextFormat.Normal, false);
+		updateProgress(true);
 	}
 
 	/**
@@ -342,6 +398,8 @@ public class ComicScanner extends JApplet implements ActionListener {
 	 * 
 	 */
 	private void retrieveFile() {
+		updateProgress(false);
+		filename = null;
 		JFileChooser chooser = new JFileChooser();
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(
 				"Comic Book Archives", "cbr", "cbz", "cbt");
@@ -356,12 +414,18 @@ public class ComicScanner extends JApplet implements ActionListener {
 				e.printStackTrace();
 			}
 		}
+		if (filename != null) {
+			updateProgress(textChoose, filename);
+		}
+		updateProgress(true);
 	}
 
 	/**
 	 * 
 	 */
 	private void unpackArchive() {
+		updateProgress(false);
+		updateProgress(textCheck, "Preparing archive...");
 		textReport.setText("");
 		FileInfo.resetTracking();
 		File infile = new File(pathname);
@@ -384,5 +448,6 @@ public class ComicScanner extends JApplet implements ActionListener {
 			break;
 		}
 		FileInfo.sortFiles();
+		updateProgress(true);
 	}
 }
