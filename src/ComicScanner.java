@@ -73,7 +73,6 @@ public class ComicScanner extends JApplet implements ActionListener {
 	 * @throws HeadlessException
 	 */
 	public ComicScanner() throws HeadlessException {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -309,26 +308,26 @@ public class ComicScanner extends JApplet implements ActionListener {
 		textSend.setEditable(false);
 		textXmit.setEditable(false);
 
-//		listModel.addElement("Ace");
-//		listModel.addElement("Ajax-Farrell");
-//		listModel.addElement("American Comics Group");
-//		listModel.addElement("Avon");
-//		listModel.addElement("Better/Nedor/Standard/Pines");
-//		listModel.addElement("Centaur");
-//		listModel.addElement("Charlton");
-//		listModel.addElement("Chesler");
-//		listModel.addElement("Columbia");
-//		listModel.addElement("Dell");
+		// listModel.addElement("Ace");
+		// listModel.addElement("Ajax-Farrell");
+		// listModel.addElement("American Comics Group");
+		// listModel.addElement("Avon");
+		// listModel.addElement("Better/Nedor/Standard/Pines");
+		// listModel.addElement("Centaur");
+		// listModel.addElement("Charlton");
+		// listModel.addElement("Chesler");
+		// listModel.addElement("Columbia");
+		// listModel.addElement("Dell");
 		listPublisher.setModel(listModel);
 
 		cPane = getContentPane();
 		cPane.setLayout(new GridBagLayout());
 
-//		addControlToContainer(cPane, 0, 0, scrollPublisher, true, 0);
-//		addControlToContainer(cPane, 1, 0, scrollSeries, true, 0);
-//		addControlToContainer(cPane, 2, 0, textNumber, false, 0);
-//		addControlToContainer(cPane, 0, 1, textUsername, false, 0);
-//		addControlToContainer(cPane, 1, 1, textPassword, false, 0);
+		// addControlToContainer(cPane, 0, 0, scrollPublisher, true, 0);
+		// addControlToContainer(cPane, 1, 0, scrollSeries, true, 0);
+		// addControlToContainer(cPane, 2, 0, textNumber, false, 0);
+		// addControlToContainer(cPane, 0, 1, textUsername, false, 0);
+		// addControlToContainer(cPane, 1, 1, textPassword, false, 0);
 		addControlToContainer(cPane, 0, 0, buttonChoose, false, 0);
 		addControlToContainer(cPane, 0, 1, buttonCheck, false, 0);
 		addControlToContainer(cPane, 0, 2, buttonSend, false, 0);
