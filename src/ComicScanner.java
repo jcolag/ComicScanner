@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +26,8 @@ import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -56,14 +59,17 @@ public class ComicScanner extends JApplet implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	JPanel panelMaster;
+	JLabel lblApiKey;
 	JList<String> listPublisher, listSeries;
 	JScrollPane scrollPublisher, scrollSeries, scrollReport;
 	JTextField textNumber, textUsername, textChoose, textCheck, textSend, textXmit;
+	JFormattedTextField textApiKey;
 	JPasswordField textPassword;
 	JFileChooser chooseComic;
 	JButton buttonChoose, buttonCheck, buttonSend, buttonXmit;
 	JTextPane textReport;
 	Container cPane;
+	MaskFormatter maskHash;
 
 	DefaultListModel<String> listModel;
 
@@ -307,6 +313,13 @@ public class ComicScanner extends JApplet implements ActionListener {
 		textCheck.setEditable(false);
 		textSend.setEditable(false);
 		textXmit.setEditable(false);
+		
+		try {
+			maskHash = new MaskFormatter("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+		} catch (ParseException e) {
+		}
+		lblApiKey = new JLabel("Your API Key");
+		textApiKey = new JFormattedTextField(maskHash);
 
 		// listModel.addElement("Ace");
 		// listModel.addElement("Ajax-Farrell");
@@ -332,13 +345,15 @@ public class ComicScanner extends JApplet implements ActionListener {
 		addControlToContainer(cPane, 0, 1, buttonCheck, false, 0);
 		addControlToContainer(cPane, 0, 2, buttonSend, false, 0);
 		addControlToContainer(cPane, 0, 3, buttonXmit, false, 0);
+		addControlToContainer(cPane, 0, 4, lblApiKey, false, 0);
 		addControlToContainer(cPane, 1, 0, textChoose, false, 0);
 		addControlToContainer(cPane, 1, 1, textCheck, false, 0);
 		addControlToContainer(cPane, 1, 2, textSend, false, 0);
 		addControlToContainer(cPane, 1, 3, textXmit, false, 0);
-		addControlToContainer(cPane, 0, 4, scrollReport, true, 1);
+		addControlToContainer(cPane, 1, 4, textApiKey, false, 0);
+		addControlToContainer(cPane, 0, 5, scrollReport, true, 1);
 		Component strut = Box.createHorizontalStrut(125);
-		addControlToContainer(cPane, 1, 5, (JComponent) strut, false, 0);
+		addControlToContainer(cPane, 1, 6, (JComponent) strut, false, 0);
 
 		buttonChoose.addActionListener(this);
 		buttonCheck.addActionListener(this);
