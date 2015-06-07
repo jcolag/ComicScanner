@@ -35,9 +35,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.MaskFormatter;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
@@ -52,7 +55,7 @@ import de.innosystec.unrar.rarfile.FileHeader;
  * @author john
  * 
  */
-public class ComicScanner extends JApplet implements ActionListener {
+public class ComicScanner extends JApplet implements ActionListener, DocumentListener {
 	/**
 	 * 
 	 */
@@ -359,6 +362,7 @@ public class ComicScanner extends JApplet implements ActionListener {
 		buttonCheck.addActionListener(this);
 		buttonSend.addActionListener(this);
 		buttonXmit.addActionListener(this);
+		textApiKey.getDocument().addDocumentListener(this);
 	}
 
 	/**
@@ -463,5 +467,48 @@ public class ComicScanner extends JApplet implements ActionListener {
 		}
 		FileInfo.sortFiles();
 		updateProgress(true);
+	}
+
+	/* (non-Javadoc)
+	 * @see javax.swing.event.DocumentListener#changedUpdate(javax.swing.event.DocumentEvent)
+	 */
+	@Override
+	public void changedUpdate(DocumentEvent arg0) {
+		commonTextHandler();
+	}
+
+	/* (non-Javadoc)
+	 * @see javax.swing.event.DocumentListener#insertUpdate(javax.swing.event.DocumentEvent)
+	 */
+	@Override
+	public void insertUpdate(DocumentEvent arg0) {
+		commonTextHandler();
+	}
+
+	/* (non-Javadoc)
+	 * @see javax.swing.event.DocumentListener#removeUpdate(javax.swing.event.DocumentEvent)
+	 */
+	@Override
+	public void removeUpdate(DocumentEvent arg0) {
+		commonTextHandler();
+	}
+
+	/**
+	 * 
+	 */
+	private void commonTextHandler() {
+		String apikey = textApiKey.getText().trim();
+		CharSequence spaces = " ";
+		Color bg, fg;
+		if (apikey.length() == 64 && !apikey.contains(spaces)) {
+			FileInfo.apikey = apikey;
+			bg = new Color(0, 127, 0);
+			fg = new Color(255, 255, 255);
+		} else {
+			bg = new Color(255, 255, 255);
+			fg = new Color(0, 0, 0);
+		}
+		textApiKey.setBackground(bg);
+		textApiKey.setForeground(fg);
 	}
 }
