@@ -131,68 +131,6 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 	}
 	
 	/**
-	 * @param control
-	 * @param info
-	 */
-	public void updateProgress(final JTextComponent control, final String info) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				control.setText(info);
-			}
-		});
-	}
-	
-	/**
-	 * @param active
-	 */
-	public void updateProgress(final boolean active) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				buttonChoose.setEnabled(active);
-				buttonCheck.setEnabled(active);
-				buttonSend.setEnabled(active);
-				buttonXmit.setEnabled(active);
-			}
-		});
-	}
-	
-	/**
-	 * @param info
-	 * @param reset
-	 */
-	public void updateProgress(final String info, final TextFormat fmt, final boolean reset) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				if (reset) {
-					textReport.setText("");
-					return;
-				}
-				StyledDocument doc = textReport.getStyledDocument();
-				Style normal = StyleContext.getDefaultStyleContext().getStyle(
-						StyleContext.DEFAULT_STYLE);
-				Style regular = doc.addStyle("regular", normal);
-				Style warning = doc.addStyle("highlight", regular);
-				Style style = regular;
-				switch (fmt) {
-				case Warning:
-					style = warning;
-					break;
-				case Normal:
-					break;
-				default:
-					break;
-				}
-				StyleConstants.setForeground(warning, Color.orange);
-				StyleConstants.setBold(warning, true);
-				try {
-					doc.insertString(doc.getLength(), info, style);
-				} catch (BadLocationException e) {
-				}
-			}
-		});
-	}
-
-	/**
 	 * 
 	 */
 	public void addControlToContainer(Container pane, int x, int y,
@@ -211,6 +149,33 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		}
 		gbc.gridwidth = extraColumns + 1;
 		pane.add(control, gbc);
+	}
+	
+	/* (non-Javadoc)
+	 * @see javax.swing.event.DocumentListener#changedUpdate(javax.swing.event.DocumentEvent)
+	 */
+	@Override
+	public void changedUpdate(DocumentEvent arg0) {
+		commonTextHandler();
+	}
+	
+	/**
+	 * 
+	 */
+	private void commonTextHandler() {
+		String apikey = textApiKey.getText().trim();
+		CharSequence spaces = " ";
+		Color bg, fg;
+		if (apikey.length() == 64 && !apikey.contains(spaces)) {
+			FileInfo.apikey = apikey;
+			bg = new Color(0, 127, 0);
+			fg = new Color(255, 255, 255);
+		} else {
+			bg = new Color(255, 255, 255);
+			fg = new Color(0, 0, 0);
+		}
+		textApiKey.setBackground(bg);
+		textApiKey.setForeground(fg);
 	}
 
 	/**
@@ -365,6 +330,14 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		textApiKey.getDocument().addDocumentListener(this);
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.swing.event.DocumentListener#insertUpdate(javax.swing.event.DocumentEvent)
+	 */
+	@Override
+	public void insertUpdate(DocumentEvent arg0) {
+		commonTextHandler();
+	}
+
 	/**
 	 * 
 	 */
@@ -410,6 +383,14 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 			return new byte[0];
 		}
 		return buffer;
+	}
+
+	/* (non-Javadoc)
+	 * @see javax.swing.event.DocumentListener#removeUpdate(javax.swing.event.DocumentEvent)
+	 */
+	@Override
+	public void removeUpdate(DocumentEvent arg0) {
+		commonTextHandler();
 	}
 
 	/**
@@ -469,46 +450,65 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		updateProgress(true);
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.event.DocumentListener#changedUpdate(javax.swing.event.DocumentEvent)
+	/**
+	 * @param active
 	 */
-	@Override
-	public void changedUpdate(DocumentEvent arg0) {
-		commonTextHandler();
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.event.DocumentListener#insertUpdate(javax.swing.event.DocumentEvent)
-	 */
-	@Override
-	public void insertUpdate(DocumentEvent arg0) {
-		commonTextHandler();
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.event.DocumentListener#removeUpdate(javax.swing.event.DocumentEvent)
-	 */
-	@Override
-	public void removeUpdate(DocumentEvent arg0) {
-		commonTextHandler();
+	public void updateProgress(final boolean active) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				buttonChoose.setEnabled(active);
+				buttonCheck.setEnabled(active);
+				buttonSend.setEnabled(active);
+				buttonXmit.setEnabled(active);
+			}
+		});
 	}
 
 	/**
-	 * 
+	 * @param control
+	 * @param info
 	 */
-	private void commonTextHandler() {
-		String apikey = textApiKey.getText().trim();
-		CharSequence spaces = " ";
-		Color bg, fg;
-		if (apikey.length() == 64 && !apikey.contains(spaces)) {
-			FileInfo.apikey = apikey;
-			bg = new Color(0, 127, 0);
-			fg = new Color(255, 255, 255);
-		} else {
-			bg = new Color(255, 255, 255);
-			fg = new Color(0, 0, 0);
-		}
-		textApiKey.setBackground(bg);
-		textApiKey.setForeground(fg);
+	public void updateProgress(final JTextComponent control, final String info) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				control.setText(info);
+			}
+		});
+	}
+
+	/**
+	 * @param info
+	 * @param reset
+	 */
+	public void updateProgress(final String info, final TextFormat fmt, final boolean reset) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				if (reset) {
+					textReport.setText("");
+					return;
+				}
+				StyledDocument doc = textReport.getStyledDocument();
+				Style normal = StyleContext.getDefaultStyleContext().getStyle(
+						StyleContext.DEFAULT_STYLE);
+				Style regular = doc.addStyle("regular", normal);
+				Style warning = doc.addStyle("highlight", regular);
+				Style style = regular;
+				switch (fmt) {
+				case Warning:
+					style = warning;
+					break;
+				case Normal:
+					break;
+				default:
+					break;
+				}
+				StyleConstants.setForeground(warning, Color.orange);
+				StyleConstants.setBold(warning, true);
+				try {
+					doc.insertString(doc.getLength(), info, style);
+				} catch (BadLocationException e) {
+				}
+			}
+		});
 	}
 }
