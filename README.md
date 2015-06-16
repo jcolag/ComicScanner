@@ -21,6 +21,20 @@ Like Piper's far-future empire, this project is part of an attempt to coax our p
 
 TBD.  Currently, the user interface is no more than is absolutely needed to make sure the code works.  It should be easy to guess the workflow, but assume a real interface design will appear some time in the near future.
 
+The current workflow, which largely works, is:
+
+ - Fill in the user's API Key from the ScanData web application.
+
+ - _Choose Comic..._ to...well, choose the comic.  Currently, CBR and CBZ files are supported, though other comic files may be out there and it's possible to support other archive types.
+
+ - _Analyze_ to dig through the archive, getting the file types, image sizes, and hash values of everything inside.
+
+ - _Report_ provides a quick summary of the analysis.  Eventually, there should be an option to save a file with the full analysis in an XML or JSON format.
+
+ - _Transmit_ submits the data to the ScanData web application.
+
+Each process has an associated status update.  An option to cancel processes in progress and a location to add the URL of a different instance of ScanData should be added soon.
+
 ##Background
 
 Comic books being primarily graphical and the audience being diverse in terms of technological availability, traditional document formats have been largely worthless.  They are, therefore, almost always distributed as scanned image files (most commonly GIF, JPEG, or PNG) assembled into a [comic book archive](https://en.wikipedia.org/wiki/Comic_book_archive) file, most commonly the RAR compressed format.
