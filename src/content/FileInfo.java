@@ -39,7 +39,7 @@ import content.DocumentRecord;
  *
  */
 public class FileInfo {
-	public static String archive = "archive", file = "file", apikey = "";
+	public static String archive = "archive", file = "file", apikey = "", defaultBaseUrl = "http://localhost:3000/";
 	public static ArrayList<FileInfo> fileData = new ArrayList<FileInfo>();
 	private static int avgHt = 0, avgWd = 0, avgSz = 0, imgCount = 0;
 	private static final float tolerance = 1.1F;
@@ -219,7 +219,7 @@ public class FileInfo {
 		size = buffer.length;
 		avgSz += size;
 		calculateDigest(buffer);
-		rest = new RestClient("http://localhost:3000/");
+		rest = new RestClient(defaultBaseUrl);
 		officialDocument = getDocumentWithDigest(hash);
 		Set<String> keys = signatures.keySet();
 		Iterator<String> iter = keys.iterator();
