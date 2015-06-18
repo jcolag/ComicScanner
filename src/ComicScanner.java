@@ -62,10 +62,10 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 	private static final long serialVersionUID = 1L;
 
 	JPanel panelMaster;
-	JLabel lblApiKey;
+	JLabel lblApiKey, lblRootUrl;
 	JList<String> listPublisher, listSeries;
 	JScrollPane scrollPublisher, scrollSeries, scrollReport;
-	JTextField textNumber, textUsername, textChoose, textCheck, textSend, textXmit;
+	JTextField textNumber, textUsername, textChoose, textCheck, textSend, textXmit, textRootUrl;
 	JFormattedTextField textApiKey;
 	JPasswordField textPassword;
 	JFileChooser chooseComic;
@@ -288,6 +288,9 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		}
 		lblApiKey = new JLabel("Your API Key");
 		textApiKey = new JFormattedTextField(maskHash);
+		
+		lblRootUrl = new JLabel("Your ScanData Server");
+		textRootUrl = new JTextField("http://localhost:3000");
 
 		// listModel.addElement("Ace");
 		// listModel.addElement("Ajax-Farrell");
@@ -314,14 +317,16 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		addControlToContainer(cPane, 0, 2, buttonSend, false, 0);
 		addControlToContainer(cPane, 0, 3, buttonXmit, false, 0);
 		addControlToContainer(cPane, 0, 4, lblApiKey, false, 0);
+		addControlToContainer(cPane, 0, 5, lblRootUrl, false, 0);
 		addControlToContainer(cPane, 1, 0, textChoose, false, 0);
 		addControlToContainer(cPane, 1, 1, textCheck, false, 0);
 		addControlToContainer(cPane, 1, 2, textSend, false, 0);
 		addControlToContainer(cPane, 1, 3, textXmit, false, 0);
 		addControlToContainer(cPane, 1, 4, textApiKey, false, 0);
-		addControlToContainer(cPane, 0, 5, scrollReport, true, 1);
+		addControlToContainer(cPane, 1, 5, textRootUrl, false, 0);
+		addControlToContainer(cPane, 0, 6, scrollReport, true, 1);
 		Component strut = Box.createHorizontalStrut(125);
-		addControlToContainer(cPane, 1, 6, (JComponent) strut, false, 0);
+		addControlToContainer(cPane, 1, 7, (JComponent) strut, false, 0);
 
 		buttonChoose.addActionListener(this);
 		buttonCheck.addActionListener(this);
