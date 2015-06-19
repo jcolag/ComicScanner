@@ -156,26 +156,29 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 	 */
 	@Override
 	public void changedUpdate(DocumentEvent arg0) {
-		commonTextHandler();
+		commonTextHandler(arg0);
 	}
 	
 	/**
 	 * 
 	 */
-	private void commonTextHandler() {
-		String apikey = textApiKey.getText().trim();
-		CharSequence spaces = " ";
-		Color bg, fg;
-		if (apikey.length() == 64 && !apikey.contains(spaces)) {
-			FileInfo.apikey = apikey;
-			bg = new Color(0, 127, 0);
-			fg = new Color(255, 255, 255);
+	private void commonTextHandler(DocumentEvent arg0) {
+		if (arg0.getDocument() == textApiKey.getDocument()) {
+			String apikey = textApiKey.getText().trim();
+			CharSequence spaces = " ";
+			Color bg, fg;
+			if (apikey.length() == 64 && !apikey.contains(spaces)) {
+				FileInfo.apikey = apikey;
+				bg = new Color(0, 127, 0);
+				fg = new Color(255, 255, 255);
+			} else {
+				bg = new Color(255, 233, 233);
+				fg = new Color(0, 0, 0);
+			}
+			textApiKey.setBackground(bg);
+			textApiKey.setForeground(fg);
 		} else {
-			bg = new Color(255, 255, 255);
-			fg = new Color(0, 0, 0);
 		}
-		textApiKey.setBackground(bg);
-		textApiKey.setForeground(fg);
 	}
 
 	/**
@@ -340,7 +343,7 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 	 */
 	@Override
 	public void insertUpdate(DocumentEvent arg0) {
-		commonTextHandler();
+		commonTextHandler(arg0);
 	}
 
 	/**
@@ -395,7 +398,7 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 	 */
 	@Override
 	public void removeUpdate(DocumentEvent arg0) {
-		commonTextHandler();
+		commonTextHandler(arg0);
 	}
 
 	/**
