@@ -177,6 +177,9 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 			}
 			textApiKey.setBackground(bg);
 			textApiKey.setForeground(fg);
+		} else if (arg0.getDocument() == textRootUrl.getDocument()) {
+			String rootUrl = textRootUrl.getText().trim();
+			
 		} else {
 		}
 	}
@@ -336,6 +339,7 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		buttonSend.addActionListener(this);
 		buttonXmit.addActionListener(this);
 		textApiKey.getDocument().addDocumentListener(this);
+		textRootUrl.getDocument().addDocumentListener(this);
 	}
 
 	/* (non-Javadoc)
