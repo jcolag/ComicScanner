@@ -23,7 +23,9 @@ TBD.  Currently, the user interface is no more than is absolutely needed to make
 
 The current workflow, which largely works, is:
 
- - Fill in the user's API Key from the ScanData web application.
+ - Fill in your (or "the user's") API Key from the ScanData web application.
+
+ - If the ScanData service is not at the default location (currently `localhost` until I deploy an instance of the server permanently), fill in its URL.
 
  - _Choose Comic..._ to...well, choose the comic.  Currently, CBR and CBZ files are supported, though other comic files may be out there and it's possible to support other archive types.
 
@@ -33,7 +35,7 @@ The current workflow, which largely works, is:
 
  - _Transmit_ submits the data to the ScanData web application.
 
-Each process has an associated status update.  An option to cancel processes in progress and a location to add the URL of a different instance of ScanData should be added soon.
+Each process has an associated status update.  An option to cancel processes in progress should be added soon.
 
 ##Background
 
