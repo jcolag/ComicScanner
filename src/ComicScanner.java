@@ -13,6 +13,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -178,8 +182,20 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 			textApiKey.setBackground(bg);
 			textApiKey.setForeground(fg);
 		} else if (arg0.getDocument() == textRootUrl.getDocument()) {
+			Color bg, fg;
 			String rootUrl = textRootUrl.getText().trim();
-			
+			try {
+				URL root = new URL(rootUrl);
+				URI uri = root.toURI();
+				bg = new Color(0, 127, 0);
+				fg = new Color(255, 255, 255);
+				FileInfo.defaultBaseUrl = rootUrl;
+			} catch (MalformedURLException | URISyntaxException e) {
+				bg = new Color(255, 233, 233);
+				fg = new Color(0, 0, 0);
+			}
+			textRootUrl.setBackground(bg);
+			textRootUrl.setForeground(fg);
 		} else {
 		}
 	}
