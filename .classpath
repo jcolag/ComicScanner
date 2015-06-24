@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="/home/john/workspace/httpcomponents-client-4.4.1/lib/httpclient-4.4.1.jar"/>
 	<classpathentry kind="lib" path="/home/john/workspace/httpcomponents-client-4.4.1/lib/httpcore-4.4.1.jar"/>
 	<classpathentry kind="lib" path="/home/john/workspace/gson-2.3.1.jar"/>
+	<classpathentry kind="lib" path="/home/john/workspace/commons-validator-1.4.1/commons-validator-1.4.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -35,6 +36,16 @@ public class RestClient {
 		byte b[] = new byte[(int) length];
 		entity.getContent().read(b);
 		return new String(b, Charset.forName(encoding));
+	}
+	
+	/**
+	 * @param url
+	 * @return
+	 */
+	public static boolean isUrlValid(String url) {
+		String[] schemes = {"http", "https"};
+		UrlValidator valid = new UrlValidator(schemes, UrlValidator.NO_FRAGMENTS);
+		return valid.isValid(url);
 	}
 
 	/**
