@@ -51,6 +51,7 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
 import content.FileInfo;
+import content.RestClient;
 import de.innosystec.unrar.Archive;
 import de.innosystec.unrar.exception.RarException;
 import de.innosystec.unrar.rarfile.FileHeader;
@@ -187,6 +188,9 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 			try {
 				URL root = new URL(rootUrl);
 				URI uri = root.toURI();
+				if (!RestClient.isUrlValid(rootUrl)) {
+					throw new MalformedURLException();
+				}
 				bg = new Color(0, 127, 0);
 				fg = new Color(255, 255, 255);
 				FileInfo.defaultBaseUrl = rootUrl;
