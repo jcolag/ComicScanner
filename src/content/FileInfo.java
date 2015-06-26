@@ -32,10 +32,6 @@ import content.DocumentRecord;
 
 /**
  * @author john
- * 
- */
-/**
- * @author john
  *
  */
 public class FileInfo {
