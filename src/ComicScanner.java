@@ -74,7 +74,7 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 	JFormattedTextField textApiKey;
 	JPasswordField textPassword;
 	JFileChooser chooseComic;
-	JButton buttonChoose, buttonCheck, buttonSend, buttonXmit;
+	JButton buttonChoose, buttonCheck, buttonSend, buttonXmit, buttonAbort;
 	JTextPane textReport;
 	Container cPane;
 	MaskFormatter maskHash;
@@ -129,6 +129,7 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 					updateProgress(true);
 				}
 			};
+		} else if (e.getSource() == buttonAbort) {
 		}
 		if (queryThread != null) {
 			queryThread.start();
@@ -298,6 +299,8 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		buttonCheck = new JButton("Analyze");
 		buttonSend = new JButton("Report");
 		buttonXmit = new JButton("Transmit");
+		buttonAbort = new JButton("Abort Process");
+		buttonAbort.setEnabled(false);
 		
 		textChoose = new JTextField(128);
 		textCheck = new JTextField(128);
@@ -353,11 +356,13 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		addControlToContainer(cPane, 0, 6, scrollReport, true, 1);
 		Component strut = Box.createHorizontalStrut(125);
 		addControlToContainer(cPane, 1, 7, (JComponent) strut, false, 0);
+		addControlToContainer(cPane, 0, 8, buttonAbort, false, 1);
 
 		buttonChoose.addActionListener(this);
 		buttonCheck.addActionListener(this);
 		buttonSend.addActionListener(this);
 		buttonXmit.addActionListener(this);
+		buttonAbort.addActionListener(this);
 		textApiKey.getDocument().addDocumentListener(this);
 		textRootUrl.getDocument().addDocumentListener(this);
 	}
@@ -492,6 +497,7 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 				buttonCheck.setEnabled(active);
 				buttonSend.setEnabled(active);
 				buttonXmit.setEnabled(active);
+				buttonAbort.setEnabled(!active);
 			}
 		});
 	}
