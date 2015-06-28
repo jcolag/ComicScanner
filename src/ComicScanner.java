@@ -82,6 +82,8 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 	DefaultListModel<String> listModel;
 
 	String pathname, filename;
+	
+	boolean abort_process = false;
 
 	/**
 	 * @throws HeadlessException
@@ -121,6 +123,10 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 					int count = 0;
 					Iterator<FileInfo> iter = FileInfo.fileData.iterator();
 					while (FileInfo.fileData != null && iter.hasNext()) {
+						if (abort_process) {
+							abort_process = false;
+							break;
+						}
 						FileInfo fi = iter.next();
 						fi.sendSubmission();
 						updateProgress(textXmit, "" + count + " files of " + files + ".");
@@ -130,6 +136,7 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 				}
 			};
 		} else if (e.getSource() == buttonAbort) {
+			abort_process = true;
 		}
 		if (queryThread != null) {
 			queryThread.start();
@@ -217,8 +224,13 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 			headers = rarFile.getFileHeaders();
 			int files = headers.size();
 			int count = 0;
+			FileInfo.networkFailed = false;
 			Iterator<FileHeader> iter = headers.iterator();
 			while (headers != null && iter.hasNext()) {
+				if (abort_process) {
+					abort_process = false;
+					break;
+				}
 				FileHeader head = iter.next();
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				rarFile.extractFile(head, os);
@@ -253,6 +265,10 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 			int count = 0;
 			int files = zipFile.size();
 			while (entries.hasMoreElements()) {
+				if (abort_process) {
+					abort_process = false;
+					break;
+				}
 				ZipEntry entry = (ZipEntry) entries.nextElement();
 				long fileSize = entry.getSize();
 				InputStream in = zipFile.getInputStream(entry);
@@ -383,6 +399,10 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		updateProgress(null, TextFormat.Normal, true);
 		int pages = FileInfo.fileData.size();
 		for (int i = 0; i < pages; i++) {
+			if (abort_process) {
+				abort_process = false;
+				break;
+			}
 			FileInfo fi = FileInfo.fileData.get(i);
 			updateProgress(textSend, "" + (i + 1) + " files of " + pages + ".");
 			updateProgress(fi.warnDuplicate(), TextFormat.Warning, false);
