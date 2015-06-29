@@ -37,6 +37,7 @@ import content.DocumentRecord;
 public class FileInfo {
 	public static String archive = "archive", file = "file", apikey = "", defaultBaseUrl = "http://localhost:3000/";
 	public static ArrayList<FileInfo> fileData = new ArrayList<FileInfo>();
+	public static boolean networkFailed = false;
 	private static int avgHt = 0, avgWd = 0, avgSz = 0, imgCount = 0;
 	private static final float tolerance = 1.1F;
 	private static Gson gson = new Gson();
@@ -86,6 +87,7 @@ public class FileInfo {
 		fileData.clear();
 		hashes.clear();
 		warnings.clear();
+		networkFailed = false;
 	}
 
 	/**
@@ -261,10 +263,14 @@ public class FileInfo {
 	 */
 	private DocumentRecord getDocumentWithDigest(String digest) {
 		DocumentRecord doc = null;
+		if (networkFailed) {
+			return doc;
+		}
 		try {
 			String aliases = rest.getFromUrl("/documents/" + digest + ".json");
 			doc = gson.fromJson(aliases, DocumentRecord.class);
 		} catch (ConnectException e1) {
+			networkFailed = true;
 			e1.printStackTrace();
 		} catch (com.google.gson.JsonSyntaxException e1) {
 			System.out.println("Malformed response");
