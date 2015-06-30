@@ -128,7 +128,10 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 							break;
 						}
 						FileInfo fi = iter.next();
-						fi.sendSubmission();
+						if (!fi.sendSubmission()) {
+							updateProgress(textXmit, "Server is not available");
+							break;
+						}
 						updateProgress(textXmit, "" + count + " files of " + files + ".");
 						count += 1;
 					}

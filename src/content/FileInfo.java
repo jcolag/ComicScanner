@@ -294,7 +294,7 @@ public class FileInfo {
 		return params;
 	}
 	
-	public void sendSubmission() {
+	public boolean sendSubmission() {
 		List<NameValuePair> params = prepareSubmission();
 		try {
 			String result = rest.postToUrl("/submissions.json", params);
@@ -302,7 +302,9 @@ public class FileInfo {
 		} catch (ConnectException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	/**
