@@ -209,6 +209,11 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 				bg = new Color(255, 233, 233);
 				fg = new Color(0, 0, 0);
 			}
+			if (rootUrl.startsWith("]") && rootUrl.endsWith("[")) {
+				// Override validation, in case of testing
+				rootUrl = rootUrl.substring(1, rootUrl.length() - 1);
+				FileInfo.defaultBaseUrl = rootUrl;
+			}
 			textRootUrl.setBackground(bg);
 			textRootUrl.setForeground(fg);
 		} else {
