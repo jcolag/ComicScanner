@@ -23,9 +23,9 @@ TBD.  Currently, the user interface is no more than is absolutely needed to make
 
 The current workflow, which largely works, is:
 
- - Fill in your (or "the user's") API Key from the ScanData web application.
+ - Fill in your (or "the user's") API Key from the ScanData web application.  If the API Key is malformed (too short, too long, inappropriate letters or numbers), it will be rejected until fixed.  When the input field turns __dark green__ with white lettering, it has the right structure, and will be pink with black lettering until then.
 
- - If the ScanData service is not at the default location (currently `localhost` until I deploy an instance of the server permanently), fill in its URL.
+ - If the ScanData service is not at the default location (currently `localhost` until I deploy an instance of the server permanently), fill in its URL.  With an exception designed for testing, the URL _must_ be valid before the applet will use it.  As with the API Key, impossible URLs will turn the server input field pink with black lettering, reverting to white when the URL is formed correctly.
 
  - _Choose Comic..._ to...well, choose the comic.  Currently, CBR and CBZ files are supported, though other comic files may be out there and it's possible to support other archive types.
 
