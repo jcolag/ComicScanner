@@ -253,9 +253,6 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 			}
 			rarFile.close();
 		} catch (RarException | IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println(e.getMessage());
-			e.printStackTrace();
 		}
 	}
 
@@ -291,8 +288,6 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 			}
 			zipFile.close();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
 		}
 	}
 
@@ -474,8 +469,6 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 				pathname = chooser.getSelectedFile().getCanonicalPath();
 				filename = chooser.getSelectedFile().getName();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 		if (filename != null) {
