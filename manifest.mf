@@ -1,2 +1,4 @@
 Manifest-Version: 1.0
-
+Permissions: all-permissions
+Codebase: colagioia.net
+Application-Name: Comic Scan Scanner
