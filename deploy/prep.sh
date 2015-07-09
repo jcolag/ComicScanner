@@ -1,12 +1,16 @@
 #!/bin/sh
+base=ComicScanner
 infile=template.html
 outdir=stage
-outfile=ComicScanner.html
-applet=ComicScanner.jar
+outfile=$base.html
+applet=$base.jar
+keys=comicscanner.keys
 jarlist=$applet
 mkdir -p $outdir
 rm -rf $outdir/*
-sh ./sign.sh $applet
+keytool -genkey -keystore $keys -alias me -storepass $1
+keytool -selfcert -keystore $keys -alias me -storepass $1
+jarsigner -keystore $keys $applet me -storepass $1
 mv *.jar $outdir
 for jar in $(grep "<classpathentry kind=\"lib\" path=\".*\.jar\"/>" ../.classpath | cut -f4 -d'"')
 do
