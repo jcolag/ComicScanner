@@ -218,7 +218,7 @@ public class FileInfo {
 		avgSz += size;
 		calculateDigest(buffer);
 		rest = new RestClient(defaultBaseUrl);
-		officialDocument = getDocumentWithDigest(hash);
+		setOfficialDocument(getDocumentWithDigest(hash));
 		Set<String> keys = signatures.keySet();
 		Iterator<String> iter = keys.iterator();
 		while (iter.hasNext()) {
@@ -432,5 +432,19 @@ public class FileInfo {
 		return warn(width > 0
 				&& (width > tolerance * avgWd || width < tolerance / avgWd),
 				"Image width is inconsistent with remainder of archive");
+	}
+
+	/**
+	 * @return the officialDocument
+	 */
+	public DocumentRecord getOfficialDocument() {
+		return officialDocument;
+	}
+
+	/**
+	 * @param officialDocument the officialDocument to set
+	 */
+	public void setOfficialDocument(DocumentRecord officialDocument) {
+		this.officialDocument = officialDocument;
 	}
 }
