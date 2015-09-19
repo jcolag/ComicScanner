@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Trusted-Library: true
+Trusted-Library: false
 Application-Library-Allowable-Codebase: *
 Trusted-Only: false
 Permissions: all-permissions
