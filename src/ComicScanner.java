@@ -60,7 +60,8 @@ import de.innosystec.unrar.rarfile.FileHeader;
  * @author john
  * 
  */
-public class ComicScanner extends JApplet implements ActionListener, DocumentListener {
+public class ComicScanner extends JApplet implements ActionListener,
+		DocumentListener {
 	/**
 	 * 
 	 */
@@ -70,7 +71,8 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 	JLabel lblApiKey, lblRootUrl;
 	JList<String> listPublisher, listSeries;
 	JScrollPane scrollPublisher, scrollSeries, scrollReport;
-	JTextField textNumber, textUsername, textChoose, textCheck, textSend, textXmit, textRootUrl;
+	JTextField textNumber, textUsername, textChoose, textCheck, textSend,
+			textXmit, textRootUrl;
 	JFormattedTextField textApiKey;
 	JPasswordField textPassword;
 	JFileChooser chooseComic;
@@ -82,7 +84,7 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 	DefaultListModel<String> listModel;
 
 	String pathname, filename;
-	
+
 	boolean abort_process = false;
 
 	/**
@@ -132,7 +134,8 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 							updateProgress(textXmit, "Server is not available");
 							break;
 						}
-						updateProgress(textXmit, "" + count + " files of " + files + ".");
+						updateProgress(textXmit, "" + count + " files of "
+								+ files + ".");
 						count += 1;
 					}
 					updateProgress(true);
@@ -145,7 +148,7 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 			queryThread.start();
 		}
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -166,15 +169,18 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		gbc.gridwidth = extraColumns + 1;
 		pane.add(control, gbc);
 	}
-	
-	/* (non-Javadoc)
-	 * @see javax.swing.event.DocumentListener#changedUpdate(javax.swing.event.DocumentEvent)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.event.DocumentListener#changedUpdate(javax.swing.event.
+	 * DocumentEvent)
 	 */
 	@Override
 	public void changedUpdate(DocumentEvent arg0) {
 		commonTextHandler(arg0);
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -244,7 +250,8 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 				rarFile.extractFile(head, os);
 				buffer = os.toByteArray();
 				count += 1;
-				String status = "" + count + " archived files of " + files + ".";
+				String status = "" + count + " archived files of " + files
+						+ ".";
 				updateProgress(textCheck, status);
 				FileInfo info = new FileInfo(buffer, FileInfo.file);
 				info.name = head.getFileNameString();
@@ -279,7 +286,8 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 				InputStream in = zipFile.getInputStream(entry);
 				buffer = readFromStream(in, fileSize);
 				count += 1;
-				String status = "" + count + " archived files of " + files + ".";
+				String status = "" + count + " archived files of " + files
+						+ ".";
 				updateProgress(textCheck, status);
 				FileInfo info = new FileInfo(buffer, FileInfo.file);
 				info.name = entry.getName();
@@ -320,7 +328,7 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		buttonXmit = new JButton("Transmit");
 		buttonAbort = new JButton("Abort Process");
 		buttonAbort.setEnabled(false);
-		
+
 		textChoose = new JTextField(128);
 		textCheck = new JTextField(128);
 		textSend = new JTextField(128);
@@ -329,14 +337,15 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		textCheck.setEditable(false);
 		textSend.setEditable(false);
 		textXmit.setEditable(false);
-		
+
 		try {
-			maskHash = new MaskFormatter("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+			maskHash = new MaskFormatter(
+					"HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
 		} catch (ParseException e) {
 		}
 		lblApiKey = new JLabel("Your API Key");
 		textApiKey = new JFormattedTextField(maskHash);
-		
+
 		lblRootUrl = new JLabel("Your ScanData Server");
 		textRootUrl = new JTextField("http://localhost:3000");
 
@@ -386,8 +395,11 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		textRootUrl.getDocument().addDocumentListener(this);
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.event.DocumentListener#insertUpdate(javax.swing.event.DocumentEvent)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.event.DocumentListener#insertUpdate(javax.swing.event.
+	 * DocumentEvent)
 	 */
 	@Override
 	public void insertUpdate(DocumentEvent arg0) {
@@ -445,8 +457,11 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 		return buffer;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.event.DocumentListener#removeUpdate(javax.swing.event.DocumentEvent)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.event.DocumentListener#removeUpdate(javax.swing.event.
+	 * DocumentEvent)
 	 */
 	@Override
 	public void removeUpdate(DocumentEvent arg0) {
@@ -539,7 +554,8 @@ public class ComicScanner extends JApplet implements ActionListener, DocumentLis
 	 * @param info
 	 * @param reset
 	 */
-	public void updateProgress(final String info, final TextFormat fmt, final boolean reset) {
+	public void updateProgress(final String info, final TextFormat fmt,
+			final boolean reset) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				if (reset) {
