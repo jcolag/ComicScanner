@@ -32,10 +32,11 @@ import content.DocumentRecord;
 
 /**
  * @author john
- *
+ * 
  */
 public class FileInfo {
-	public static String archive = "archive", file = "file", apikey = "", defaultBaseUrl = "http://localhost:3000/";
+	public static String archive = "archive", file = "file", apikey = "",
+			defaultBaseUrl = "http://localhost:3000/";
 	public static ArrayList<FileInfo> fileData = new ArrayList<FileInfo>();
 	public static boolean networkFailed = false;
 	private static int avgHt = 0, avgWd = 0, avgSz = 0, imgCount = 0;
@@ -116,9 +117,9 @@ public class FileInfo {
 
 	private static void assignPageNumbers() {
 		/*
-		 * Find the common string between image file names.
-		 * Starts with the middle file in hopes of avoiding alternate
-		 * covers and scanner tag pages.
+		 * Find the common string between image file names. Starts with the
+		 * middle file in hopes of avoiding alternate covers and scanner tag
+		 * pages.
 		 */
 		diff_match_patch dmp = new diff_match_patch();
 		String common = fileData.get(fileData.size() / 2).name;
@@ -141,9 +142,8 @@ public class FileInfo {
 				test += d.text + "*";
 			}
 			/*
-			 *  Early on, look for approximate similarities, but then
-			 *  shift to very minor differences, for example, only
-			 *  changing page numbers
+			 * Early on, look for approximate similarities, but then shift to
+			 * very minor differences, for example, only changing page numbers
 			 */
 			if ((i < 3 && test.length() - diffs.size() > name.length() * 2 / 3)
 					|| Math.abs(common.length() - test.length()) < 3) {
@@ -151,20 +151,21 @@ public class FileInfo {
 			}
 		}
 		/*
-		 * Find differences between individual image file names and the
-		 * common naming convention
+		 * Find differences between individual image file names and the common
+		 * naming convention
 		 */
 		int prev = 0;
 		for (int i = 0; i < fileData.size(); i++) {
 			if (fileData.get(i).width <= 0) {
 				continue;
 			}
-			LinkedList<Diff> diffs = dmp.diff_main(common, fileData.get(i).name);
+			LinkedList<Diff> diffs = dmp
+					.diff_main(common, fileData.get(i).name);
 			Iterator<Diff> df = diffs.iterator();
 			String test = "";
 			/*
-			 * Collect insertions that begin with a digit, which are
-			 * hopefully only page numbers
+			 * Collect insertions that begin with a digit, which are hopefully
+			 * only page numbers
 			 */
 			while (df.hasNext()) {
 				Diff d = df.next();
@@ -256,7 +257,6 @@ public class FileInfo {
 		hashes.put(hash, size);
 	}
 
-
 	/**
 	 * @param digest
 	 * @return
@@ -277,7 +277,7 @@ public class FileInfo {
 		}
 		return doc;
 	}
-	
+
 	public List<NameValuePair> prepareSubmission() {
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("name", name));
@@ -286,14 +286,18 @@ public class FileInfo {
 		params.add(new BasicNameValuePair("imageError", imageError));
 		params.add(new BasicNameValuePair("modified", ""));
 		params.add(new BasicNameValuePair("size", new Integer(size).toString()));
-		params.add(new BasicNameValuePair("height", new Integer(height).toString()));
-		params.add(new BasicNameValuePair("width", new Integer(width).toString()));
-		params.add(new BasicNameValuePair("page", new Integer(pageNumber).toString()));
-		params.add(new BasicNameValuePair("folder", new Boolean(folder).toString()));
+		params.add(new BasicNameValuePair("height", new Integer(height)
+				.toString()));
+		params.add(new BasicNameValuePair("width", new Integer(width)
+				.toString()));
+		params.add(new BasicNameValuePair("page", new Integer(pageNumber)
+				.toString()));
+		params.add(new BasicNameValuePair("folder", new Boolean(folder)
+				.toString()));
 		params.add(new BasicNameValuePair("apikey", apikey));
 		return params;
 	}
-	
+
 	public boolean sendSubmission() {
 		List<NameValuePair> params = prepareSubmission();
 		try {
@@ -350,7 +354,8 @@ public class FileInfo {
 	}
 
 	public String report() {
-		String sz = height > 0 ? ("" + width + "x" + height + " ") : ("" + size + " byte ");
+		String sz = height > 0 ? ("" + width + "x" + height + " ")
+				: ("" + size + " byte ");
 		String rpt = name + " (" + sz + type + ")\n";
 		// report += type + " " + hash;
 		// report += " (" + size + ") - ";
@@ -385,7 +390,7 @@ public class FileInfo {
 		return warn(folder && !(name == ".DS_STORE" || name == "__MACOSX"),
 				"Folder");
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -410,12 +415,12 @@ public class FileInfo {
 		return warn(type == "file" && !folder && name != ".DS_STORE"
 				&& name != "__MACOSX", "Non-Image file in archive");
 	}
-	
+
 	public String warnOrder() {
 		return warn(sortOffset != 0 && width > 0,
 				"File name does not match natural sort order");
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -424,7 +429,7 @@ public class FileInfo {
 				&& (size > tolerance * avgSz || size < tolerance / avgSz),
 				"File size is inconsistent with remainder of archive");
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -442,7 +447,8 @@ public class FileInfo {
 	}
 
 	/**
-	 * @param officialDocument the officialDocument to set
+	 * @param officialDocument
+	 *            the officialDocument to set
 	 */
 	public void setOfficialDocument(DocumentRecord officialDocument) {
 		this.officialDocument = officialDocument;
