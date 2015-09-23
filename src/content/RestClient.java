@@ -37,14 +37,15 @@ public class RestClient {
 		entity.getContent().read(b);
 		return new String(b, Charset.forName(encoding));
 	}
-	
+
 	/**
 	 * @param url
 	 * @return
 	 */
 	public static boolean isUrlValid(String url) {
-		String[] schemes = {"http", "https"};
-		UrlValidator valid = new UrlValidator(schemes, UrlValidator.NO_FRAGMENTS);
+		String[] schemes = { "http", "https" };
+		UrlValidator valid = new UrlValidator(schemes,
+				UrlValidator.NO_FRAGMENTS);
 		return valid.isValid(url);
 	}
 
