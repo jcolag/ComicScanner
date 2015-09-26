@@ -5,7 +5,7 @@ package content;
 
 /**
  * @author john
- *
+ * 
  */
 public class DocumentRecord {
 	public int id, size;
