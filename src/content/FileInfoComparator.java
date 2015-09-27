@@ -4,10 +4,12 @@ import java.util.Comparator;
 
 /**
  * @author john
- *
+ * 
  */
 class FileInfoComparator implements Comparator<FileInfo> {
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
 	@Override
