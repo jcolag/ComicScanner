@@ -27,7 +27,7 @@ import java.util.*;
 
 /**
  * @author john
- *
+ * 
  */
 public class NaturalOrderComparator implements Comparator<Object> {
 
@@ -36,13 +36,12 @@ public class NaturalOrderComparator implements Comparator<Object> {
 	 * @param b
 	 * @return
 	 */
-	int compareRight(String a, String b)
-	{
+	int compareRight(String a, String b) {
 		int bias = 0;
 		int ia = 0;
 		int ib = 0;
 
-		// The longest run of digits wins.  That aside, the greatest
+		// The longest run of digits wins. That aside, the greatest
 		// value wins, but we can't know that it will until we've scanned
 		// both numbers to know that they have the same magnitude, so we
 		// remember it in BIAS.
@@ -50,8 +49,7 @@ public class NaturalOrderComparator implements Comparator<Object> {
 			char ca = charAt(a, ia);
 			char cb = charAt(b, ib);
 
-			if (!Character.isDigit(ca)
-					&& !Character.isDigit(cb)) {
+			if (!Character.isDigit(ca) && !Character.isDigit(cb)) {
 				return bias;
 			} else if (!Character.isDigit(ca)) {
 				return -1;
@@ -69,7 +67,7 @@ public class NaturalOrderComparator implements Comparator<Object> {
 			}
 		}
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -91,7 +89,8 @@ public class NaturalOrderComparator implements Comparator<Object> {
 			// only count the number of zeroes leading the last number compared
 			nza = nzb = 0;
 
-			ca = charAt(a, ia); cb = charAt(b, ib);
+			ca = charAt(a, ia);
+			cb = charAt(b, ib);
 
 			// skip over leading spaces or zeros
 			while (Character.isSpaceChar(ca) || ca == '0') {
@@ -124,7 +123,7 @@ public class NaturalOrderComparator implements Comparator<Object> {
 			}
 
 			if (ca == 0 && cb == 0) {
-				// The strings compare the same.  Perhaps the caller
+				// The strings compare the same. Perhaps the caller
 				// will want to call strcmp to break the tie.
 				return nza - nzb;
 			}
@@ -135,7 +134,8 @@ public class NaturalOrderComparator implements Comparator<Object> {
 				return +1;
 			}
 
-			++ia; ++ib;
+			++ia;
+			++ib;
 		}
 	}
 
