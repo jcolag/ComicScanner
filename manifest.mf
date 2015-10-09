@@ -2,7 +2,6 @@ Manifest-Version: 1.0
 Trusted-Library: false
 Application-Library-Allowable-Codebase: *
 Trusted-Only: false
-Permissions: all-permissions
 Caller-Allowable-Codebase: *
 Codebase: *
 Application-Name: Comic Scan Scanner
